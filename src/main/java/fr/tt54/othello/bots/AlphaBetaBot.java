@@ -6,8 +6,7 @@ import fr.tt54.othello.game.OthelloGame;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinMaxBot {
-
+public class AlphaBetaBot {
 
     /**
      *
@@ -27,7 +26,7 @@ public class MinMaxBot {
                 int[] move = OthelloGame.intToPosition(moves.get(Main.random.nextInt(moves.size())));
                 game.playMove(move[0], move[1]);
             } else {
-                MinMaxBot.playBestMove(game, depth);
+                AlphaBetaBot.playBestMove(game, depth);
             }
         }
 
@@ -45,32 +44,44 @@ public class MinMaxBot {
         return isMinMaxWhite ? white > black : black > white;
     }
 
+
     public static void playBestMove(OthelloGame position, int depth){
         //System.out.println("on joue un coup");
-        int[] result = evaluatePosition(position, depth, position.isWhiteToPlay());
+        int[] result = evaluatePosition(position, depth, position.isWhiteToPlay(), Integer.MIN_VALUE, Integer.MAX_VALUE);
         int[] move = OthelloGame.intToPosition(result[1]);
         position.playMove(move[0], move[1]);
     }
 
 
-    public static int[] evaluatePosition(OthelloGame startingPosition, int depth, boolean isMaxPlayer){
+    public static int[] evaluatePosition(OthelloGame startingPosition, int depth, boolean isMaxPlayer, int alpha, int beta){
         if(depth == 0 || startingPosition.isGameFinished()){
-            return new int[] {evaluateFunction(startingPosition)};
+            return new int[] {MinMaxBot.evaluateFunction(startingPosition)};
         }
 
         if(isMaxPlayer){
             int max = Integer.MIN_VALUE;
             int bestMove = -1;
+
             for(int move : startingPosition.getAvailablePlacements()){
                 OthelloGame game = startingPosition.clone();
                 int[] moveCoordinates = OthelloGame.intToPosition(move);
                 boolean canAdversaryPlay = !game.playMove(moveCoordinates[0], moveCoordinates[1]);
 
                 int previousMax = max;
-                max = Math.max(max, evaluatePosition(game, depth - 1, canAdversaryPlay != isMaxPlayer)[0]);
+                max = Math.max(max, evaluatePosition(game, depth - 1, canAdversaryPlay != isMaxPlayer, alpha, beta)[0]);
                 if(max != previousMax){
                     bestMove = move;
                 }
+
+                if(beta <= max){
+                    // On fait une coupure beta
+                    // ==> beta étant la plus petite valeur déjà enregistrée par le noeud parent,
+                    //     on sait que notre max sera plus grand que beta, on peut donc arrêter les recherches ici : cette branche n'aura
+                    //     aucune influence sur le reste de l'arbre
+                    return new int[]{max, bestMove};
+                }
+
+                alpha = Math.max(alpha, max);
             }
             return new int[] {max, bestMove};
         } else {
@@ -83,34 +94,23 @@ public class MinMaxBot {
                 boolean canAdversaryPlay = !game.playMove(moveCoordinates[0], moveCoordinates[1]);
 
                 int previousMin = min;
-                min = Math.min(min, evaluatePosition(game, depth - 1, canAdversaryPlay != isMaxPlayer)[0]);
+                min = Math.min(min, evaluatePosition(game, depth - 1, canAdversaryPlay != isMaxPlayer, alpha, beta)[0]);
                 if(min != previousMin){
                     bestMove = move;
                 }
+
+                if(alpha >= min){
+                    // On fait une coupure alpha
+                    // ==> alpha étant la plus grande valeur déjà enregistrée par le noeud parent,
+                    //     on sait que notre min sera plus petit qu'alpha, on peut donc arrêter les recherches ici : cette branche n'aura
+                    //     aucune influence sur le reste de l'arbre
+                    return new int[] {min, bestMove};
+                }
+
+                beta = Math.min(beta, min);
             }
             return new int[] {min, bestMove};
         }
-    }
-
-
-    public static int evaluateFunction(OthelloGame game){
-        if(game.isGameFinished()){
-            if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
-                return 500;
-            } else if(game.getWhitePiecesCount() == game.getBlackPiecesCount()) {
-                return 0;
-            } else {
-                return -500;
-            }
-        }
-
-        int points = 0;
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
-                points += game.getPiece(i, j);
-            }
-        }
-        return points;
     }
 
 }

@@ -16,20 +16,32 @@ import java.util.Set;
 
 public class OthelloGraphicManager extends MainClass {
 
-    private OthelloGame game = new OthelloGame();
+    private OthelloGame game;
     private java.util.List<GraphicNode> allowedMovesNodes = new ArrayList<>();
     private Set<Integer> allowedMoves = new HashSet<>();
 
+    private List<OthelloGame> shownPositions = new ArrayList<>();
+    private int currentPosition;
+
 
     public OthelloGraphicManager() {
+        this.game = new OthelloGame();
+        this.shownPositions.add(this.game.clone());
+        currentPosition = 0;
         this.drawBoard();
     }
 
+    private int tick = 0;
+
     @Override
     public void doTickContent(Frame frame) {
+        this.tick++;
         if(this.game.needUpdate){
             this.updatePanel();
             this.game.needUpdate = false;
+        } else if(tick == 500){
+            this.tick = 0;
+            this.updatePanel();
         }
     }
 
@@ -61,37 +73,62 @@ public class OthelloGraphicManager extends MainClass {
             for (int j = 0; j < 8; j++) {
                 int value = this.game.getPiece(i, j);
                 if (value != 0) {
-                    new GraphicPiece(panel, -400 + j * 100, -400 + (7 - i) * 100, 90, 90, value == 1);
+                    new GraphicPiece(panel, -400 + j * 100 + 5, -400 + (7 - i) * 100 + 5, 90, 90, value == 1);
                 }
             }
         }
 
         nodes.forEach(panel::removeNode);
-
         showAvailableMoves();
     }
 
     private void moveSelectedPiece(int targetPosition){
-        List<Integer> candidates = new ArrayList<>();
-        for(int move : allowedMoves){
+        int candidate = -1;
+        for(int move : this.game.getAvailablePlacements()){
             if(move == targetPosition){
-                candidates.add(move);
+                candidate = move;
+                break;
             }
         }
 
-        if(candidates.size() == 0)
+        if(candidate == -1)
             return;
 
-        int[] move = OthelloGame.intToPosition(candidates.get(0));
+        int[] move = OthelloGame.intToPosition(candidate);
 
         this.game.playMove(move[0], move[1]);
+
+        this.currentPosition++;
+        this.shownPositions.add(this.game.clone());
+
+        if(this.game.isGameFinished()){
+            System.out.println("Blancs : " + this.game.getWhitePiecesCount());
+            System.out.println("Noirs : " + this.game.getBlackPiecesCount());
+        }
+    }
+
+    public void showPreviousPosition(){
+        if(this.currentPosition > 0){
+            this.currentPosition = Math.min(this.shownPositions.size(), this.currentPosition) - 1;
+            this.game = this.shownPositions.get(this.currentPosition);
+            this.game.needUpdate = true;
+        }
+    }
+
+    public void showNextPosition(){
+        if(this.currentPosition + 1 <= this.shownPositions.size() - 1){
+            this.currentPosition++;
+            this.game = this.shownPositions.get(this.currentPosition);
+            this.game.needUpdate = true;
+        }
     }
 
     public void showAvailableMoves() {
-        allowedMoves.clear();
         for(GraphicNode node : new ArrayList<>(this.allowedMovesNodes)){
             Main.panel.removeNode(node);
         }
+        this.allowedMovesNodes.clear();
+        allowedMoves.clear();
 
         allowedMoves.addAll(this.game.getAvailablePlacements());
 

@@ -59,6 +59,7 @@ public class OthelloGame {
         this.needUpdate = true;
 
         if(generateAvailablePlacements().isEmpty()) {
+            //System.out.println("Le joueur " + ((whiteToPlay) ? "blanc" : "noir") + " a du sauter son tour");
             this.whiteToPlay = !this.whiteToPlay;
             if(generateAvailablePlacements().isEmpty()){
                 this.move = 100;
@@ -223,7 +224,11 @@ public class OthelloGame {
                 boardCopy[i][j] = this.board[i][j];
             }
         }
-        return new OthelloGame(boardCopy);
+        OthelloGame copy =  new OthelloGame(boardCopy);
+        copy.availableMoves = new HashSet<>(this.availableMoves);
+        copy.whiteToPlay = this.whiteToPlay;
+
+        return copy;
     }
 
     public int getWhitePiecesCount() {
