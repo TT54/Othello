@@ -55,7 +55,7 @@ public class AlphaBetaBot {
 
     public static int[] evaluatePosition(OthelloGame startingPosition, int depth, boolean isMaxPlayer, int alpha, int beta){
         if(depth == 0 || startingPosition.isGameFinished()){
-            return new int[] {MinMaxBot.evaluateFunction(startingPosition)};
+            return new int[] {MinMaxBot.evaluationFunction2(startingPosition)};
         }
 
         if(isMaxPlayer){

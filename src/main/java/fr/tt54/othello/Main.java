@@ -30,13 +30,13 @@ public class Main extends UserListener {
         frame.setMainClass(othelloGraphicManager = new OthelloGraphicManager());
 
 
-        /*int wins = 0;
+        int wins = 0;
         for(int i = 0; i < 100; i++) {
             System.out.println("partie " + i + " / " + 100);
-            if(AlphaBetaBot.playAgainstRandom(true, 8))
+            if(AlphaBetaBot.playAgainstRandom(true, 6))
                 wins++;
         }
-        System.out.println(wins);*/
+        System.out.println(wins);
     }
 
 

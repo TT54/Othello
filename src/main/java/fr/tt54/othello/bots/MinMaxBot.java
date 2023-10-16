@@ -113,4 +113,35 @@ public class MinMaxBot {
         return points;
     }
 
+
+    private static final int[][] casesValuation = {
+            {500, -150, 30, 10, 10, 30, -150, 500},
+            {-150, -250, 0, 0, 0, 0, -250, -150},
+            {30, 0, 1, 2, 2, 1, 0, 30},
+            {10, 0, 2, 16, 16, 2, 0, 10},
+            {10, 0, 2, 16, 16, 2, 0, 10},
+            {30, 0, 1, 2, 2, 1, 0, 30},
+            {-150, -250, 0, 0, 0, 0, -250, -150},
+            {500, -150, 30, 10, 10, 30, -150, 500}
+    };
+    public static int evaluationFunction2(OthelloGame game){
+        if(game.isGameFinished()){
+            if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
+                return 500;
+            } else if(game.getWhitePiecesCount() == game.getBlackPiecesCount()) {
+                return 0;
+            } else {
+                return -500;
+            }
+        }
+
+        int points = 0;
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                points += game.getPiece(i, j) * casesValuation[i][j];
+            }
+        }
+        return points;
+    }
+
 }
