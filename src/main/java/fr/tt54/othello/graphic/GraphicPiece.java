@@ -6,7 +6,6 @@ import fr.ttgraphiclib.graphics.nodes.ImageNode;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 
 public class GraphicPiece extends ImageNode {
 
@@ -15,8 +14,8 @@ public class GraphicPiece extends ImageNode {
 
     static {
         try {
-            whitePiece = ImageIO.read(GraphicPiece.class.getResource("/white_piece.png"));
-            blackPiece = ImageIO.read(GraphicPiece.class.getResource("/black_piece.png"));
+            whitePiece = ImageIO.read(GraphicPiece.class.getResource("/images/white_piece.png"));
+            blackPiece = ImageIO.read(GraphicPiece.class.getResource("/images/black_piece.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

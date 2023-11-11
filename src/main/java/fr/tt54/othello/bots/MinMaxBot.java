@@ -55,7 +55,7 @@ public class MinMaxBot {
 
     public static int[] evaluatePosition(OthelloGame startingPosition, int depth, boolean isMaxPlayer){
         if(depth == 0 || startingPosition.isGameFinished()){
-            return new int[] {evaluateFunction(startingPosition)};
+            return new int[] {evaluationFunction2(startingPosition)};
         }
 
         if(isMaxPlayer){
@@ -93,8 +93,8 @@ public class MinMaxBot {
     }
 
 
-    public static int evaluateFunction(OthelloGame game){
-        if(game.isGameFinished()){
+    public static int evaluationFunction(OthelloGame game){
+/*        if(game.isGameFinished()){
             if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
                 return 500;
             } else if(game.getWhitePiecesCount() == game.getBlackPiecesCount()) {
@@ -102,7 +102,7 @@ public class MinMaxBot {
             } else {
                 return -500;
             }
-        }
+        }*/
 
         int points = 0;
         for(int i = 0; i < 8; i++){

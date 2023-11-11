@@ -5,22 +5,29 @@ import java.util.Set;
 
 public class OthelloGame {
 
-    private final int[][] board;
-    private boolean whiteToPlay = false;
-    private int move = 0;
-    private int whitePiecesCount = 0;
-    private int blackPieces = 0;
-    public boolean needUpdate = true;
+    private final byte[][] board;           // Le plateau
+    private boolean whiteToPlay = false;    // true si c'est aux blancs de jouer, false si c'est aux noirs
+    private int move = 0;                   // Nombre de coups joués
+    private int whitePiecesCount = 0;       // Nombre de pièces blanches
+    private int blackPiecesCount = 0;       // Nombre de pièces noires
+    public boolean needUpdate = true;       // true si l'affichage du plateau doit être rafraichi, false sinon
 
-    private Set<Integer> availableMoves = new HashSet<>();
+    private final byte[] playedMoves = new byte[60];        // Tableau contenant tous les coups joués depuis le début de la partie
+    private Set<Integer> availableMoves = new HashSet<>();  // Set contenant tous les coups valides que l'on peut jouer dans cette position
 
-    public OthelloGame(int[][] board) {
+    public OthelloGame(byte[][] board) {
         this.board = board;
     }
 
-    public OthelloGame() {
-        this.board = new int[8][8];
+    public OthelloGame(String game){
+        this.board = new byte[8][8];
+        this.generateDefaultGame();
 
+        loadGame(game);
+    }
+
+    public OthelloGame() {
+        this.board = new byte[8][8];
         generateDefaultGame();
     }
 
@@ -31,9 +38,22 @@ public class OthelloGame {
         this.board[4][3] = -1;
 
         this.whitePiecesCount = 2;
-        this.blackPieces = 2;
+        this.blackPiecesCount = 2;
 
         this.generateAvailablePlacements();
+    }
+
+    /**
+     * Charge une partie à partir des coups joués
+     * @param game Chaine de caractères de la forme "f5f4e3f6" contenant les coups joués
+     */
+    public void loadGame(String game) {
+        for(int i = 0; i < game.length(); i += 2){
+            int column = game.charAt(i) - 97;
+            int row = game.charAt(i + 1) - 49;
+
+            this.playMove(row, column);
+        }
     }
 
 
@@ -48,32 +68,36 @@ public class OthelloGame {
 
         if(this.whiteToPlay){
             this.whitePiecesCount += modified + 1;
-            this.blackPieces -= modified;
+            this.blackPiecesCount -= modified;
         } else {
-            this.blackPieces += modified + 1;
+            this.blackPiecesCount += modified + 1;
             this.whitePiecesCount -= modified;
         }
 
+        this.playedMoves[move] = (byte) positionToInt(row, column);
+
         this.whiteToPlay = !this.whiteToPlay;
         move++;
-        this.needUpdate = true;
 
+        // On regarde si l'adversaire peut jouer ou non
         if(generateAvailablePlacements().isEmpty()) {
-            //System.out.println("Le joueur " + ((whiteToPlay) ? "blanc" : "noir") + " a du sauter son tour");
             this.whiteToPlay = !this.whiteToPlay;
             if(generateAvailablePlacements().isEmpty()){
                 this.move = 100;
             }
 
+            this.needUpdate = true;
             return true;
         }
+
+        this.needUpdate = true;
         return false;
     }
 
     public boolean isGameFinished(){
         if(move >= 60)
             return true;
-        return whitePiecesCount == 0 || blackPieces == 0;
+        return whitePiecesCount == 0 || blackPiecesCount == 0;
     }
 
 
@@ -137,6 +161,8 @@ public class OthelloGame {
      */
     public int placePiece(int row, int column, boolean whiteMove){
         int changedPieces = 0;
+
+        // Pour chaque pièce adverse autour du pion placé, on appelle reversePiecesAfterPlacement
         for(int i = -1; i < 2; i++){
             for(int j = -1; j < 2; j++){
                 if(i == 0 && j == 0) continue;
@@ -148,17 +174,17 @@ public class OthelloGame {
                 changedPieces += reversePiecesAfterPlacement(row, column, i, j, whiteToPlay);
             }
         }
-        this.board[row][column] = whiteMove ? 1 : -1;
+        this.board[row][column] = whiteMove ? (byte) 1 : -1;
 
         return changedPieces;
     }
 
     /**
-     *
+     * Permet de retourner, si nécessaire, les pièces averses selon une certaine direction après que l'on ait posé une pièce
      * @param startingRow
      * @param startingColumn
-     * @param rowMove
-     * @param columnMove
+     * @param rowMove Direction de la ligne selon laquelle on se déplace
+     * @param columnMove Direction de la colonne selon laquelle on se déplace
      * @param whiteMove
      * @return Le nombre de pièces qui ont été modifiées selon cette ligne
      */
@@ -181,7 +207,7 @@ public class OthelloGame {
         if(piece != 0) {
             for (int position : toReverse) {
                 int[] pos = intToPosition(position);
-                this.board[pos[0]][pos[1]] = whiteMove ? 1 : -1;
+                this.board[pos[0]][pos[1]] = whiteMove ? (byte) 1 : -1;
             }
 
             return toReverse.size();
@@ -193,10 +219,44 @@ public class OthelloGame {
         return this.board[row][column];
     }
 
-    public int getPiece(int position){
-        int[] pos = intToPosition(position);
-        return getPiece(pos[0], pos[1]);
+    public boolean isWhiteToPlay() {
+        return this.whiteToPlay;
     }
+
+    public int getMoveCount() {
+        return move;
+    }
+
+    public byte[] getPlayedMoves() {
+        return playedMoves;
+    }
+
+    @Override
+    public OthelloGame clone() {
+        byte[][] boardCopy = new byte[8][8];
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                boardCopy[i][j] = this.board[i][j];
+            }
+        }
+        OthelloGame copy =  new OthelloGame(boardCopy);
+        copy.availableMoves = new HashSet<>(this.availableMoves);
+        copy.whiteToPlay = this.whiteToPlay;
+        copy.move = move;
+        copy.whitePiecesCount = whitePiecesCount;
+        copy.blackPiecesCount = blackPiecesCount;
+
+        return copy;
+    }
+
+    public int getWhitePiecesCount() {
+        return whitePiecesCount;
+    }
+
+    public int getBlackPiecesCount() {
+        return blackPiecesCount;
+    }
+
 
 
 
@@ -208,34 +268,12 @@ public class OthelloGame {
         return new int[] {pos / 8, pos % 8};
     }
 
-    public boolean isWhiteToPlay() {
-        return this.whiteToPlay;
+    public static String positionToStringPosition(int row, int column) {
+        return ((char) (column + 1 + 96)) + "" + (row+1);
     }
 
-    public int getMoveCount() {
-        return move;
-    }
-
-    @Override
-    public OthelloGame clone() {
-        int[][] boardCopy = new int[8][8];
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
-                boardCopy[i][j] = this.board[i][j];
-            }
-        }
-        OthelloGame copy =  new OthelloGame(boardCopy);
-        copy.availableMoves = new HashSet<>(this.availableMoves);
-        copy.whiteToPlay = this.whiteToPlay;
-
-        return copy;
-    }
-
-    public int getWhitePiecesCount() {
-        return whitePiecesCount;
-    }
-
-    public int getBlackPiecesCount() {
-        return blackPieces;
+    public static String intToStringPosition(int position) {
+        int[] pos = intToPosition(position);
+        return positionToStringPosition(pos[0], pos[1]);
     }
 }

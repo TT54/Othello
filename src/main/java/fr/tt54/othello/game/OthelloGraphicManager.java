@@ -20,14 +20,11 @@ public class OthelloGraphicManager extends MainClass {
     private java.util.List<GraphicNode> allowedMovesNodes = new ArrayList<>();
     private Set<Integer> allowedMoves = new HashSet<>();
 
-    private List<OthelloGame> shownPositions = new ArrayList<>();
-    private int currentPosition;
-
 
     public OthelloGraphicManager() {
-        this.game = new OthelloGame();
-        this.shownPositions.add(this.game.clone());
-        currentPosition = 0;
+        //this.game = new OthelloGame("c4e3f6e6f5c5f4g6f7e8f8g8h6c3b4g5b6d3d2e7e2f3g3b5d7d6d8c8g4h4a6h3h5h7c6f2h2h1g1c1d1a5g7a3b3a7b7c7b8e1a4a8f1a2c2b1g2b2");
+        //this.game = new OthelloGame("f5f4e3d2e2f6d3c3c5c4f3d6e6c6b5b4a4a5a6c2b3a3a2b6d7e7a7d8g4c7c1f1f8d1b8e8c8g6f7h4");
+        this.game = new OthelloGame("f5f4e3f6d3e2f3f2e6d2g5h6g4h5h3g3c1e7d6g6f8d8e8d7f7c3c2c4c8e1c5b3d1b4b5a6f1b6c6c7h4h2g2g8h8h1g1b1a2a3b8a1b2b7a8g7");
         this.drawBoard();
     }
 
@@ -52,7 +49,8 @@ public class OthelloGraphicManager extends MainClass {
         boolean white = false;
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                RectangleNode rect = new RectangleNode(panel, -400 + j * 100, -400 + (7 - i) * 100, 100, 100, white ? new Color(245, 230, 230) : new Color(100, 75, 75));
+                RectangleNode rect = new RectangleNode(panel, -400 + j * 100, -400 + i * 100, 100, 100, new Color(25, 15, 25));
+                RectangleNode rect2 = new RectangleNode(panel, -400 + j * 100 + 1, -400 + i * 100 + 1, 98, 98, new Color(75, 125, 75));
                 final int row = i;
                 final int column = j;
                 rect.setClickAction(event -> {
@@ -73,10 +71,15 @@ public class OthelloGraphicManager extends MainClass {
             for (int j = 0; j < 8; j++) {
                 int value = this.game.getPiece(i, j);
                 if (value != 0) {
-                    new GraphicPiece(panel, -400 + j * 100 + 5, -400 + (7 - i) * 100 + 5, 90, 90, value == 1);
+                    new GraphicPiece(panel, -400 + j * 100 + 5, -400 + i * 100 + 5, 90, 90, value == 1);
                 }
             }
         }
+
+/*        panel.addPainting(ttGraphics -> {
+            ttGraphics.getGraphics().drawString("SalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalut", 10, 10);
+            return true;
+        }, 150);*/
 
         nodes.forEach(panel::removeNode);
         showAvailableMoves();
@@ -98,28 +101,9 @@ public class OthelloGraphicManager extends MainClass {
 
         this.game.playMove(move[0], move[1]);
 
-        this.currentPosition++;
-        this.shownPositions.add(this.game.clone());
-
         if(this.game.isGameFinished()){
             System.out.println("Blancs : " + this.game.getWhitePiecesCount());
             System.out.println("Noirs : " + this.game.getBlackPiecesCount());
-        }
-    }
-
-    public void showPreviousPosition(){
-        if(this.currentPosition > 0){
-            this.currentPosition = Math.min(this.shownPositions.size(), this.currentPosition) - 1;
-            this.game = this.shownPositions.get(this.currentPosition);
-            this.game.needUpdate = true;
-        }
-    }
-
-    public void showNextPosition(){
-        if(this.currentPosition + 1 <= this.shownPositions.size() - 1){
-            this.currentPosition++;
-            this.game = this.shownPositions.get(this.currentPosition);
-            this.game.needUpdate = true;
         }
     }
 
@@ -134,7 +118,7 @@ public class OthelloGraphicManager extends MainClass {
 
         for (int allowed : allowedMoves) {
             int[] allowedPos = OthelloGame.intToPosition(allowed);
-            allowedMovesNodes.add(new RectangleNode(Main.panel, -400 + 25 + allowedPos[1] * 100, -400 + 25 + (7 - allowedPos[0]) * 100, 50, 50, new Color(100, 100, 255, 150)));
+            allowedMovesNodes.add(new RectangleNode(Main.panel, -400 + 25 + allowedPos[1] * 100, -400 + 25 + allowedPos[0] * 100, 50, 50, game.isWhiteToPlay() ? new Color(255, 220, 255, 150) : new Color(25, 10, 25, 150)));
         }
     }
 

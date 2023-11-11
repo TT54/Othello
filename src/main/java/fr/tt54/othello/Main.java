@@ -1,8 +1,6 @@
 package fr.tt54.othello;
 
-import com.sun.nio.sctp.NotificationHandler;
 import fr.tt54.othello.bots.AlphaBetaBot;
-import fr.tt54.othello.bots.MinMaxBot;
 import fr.tt54.othello.game.OthelloGame;
 import fr.tt54.othello.game.OthelloGraphicManager;
 import fr.ttgraphiclib.GraphicManager;
@@ -30,23 +28,30 @@ public class Main extends UserListener {
         frame.setMainClass(othelloGraphicManager = new OthelloGraphicManager());
 
 
+        //playRandomGames();
+    }
+
+    public static void playRandomGames(){
         int wins = 0;
+        int draws = 0;
+        int looses = 0;
         for(int i = 0; i < 100; i++) {
             System.out.println("partie " + i + " / " + 100);
-            if(AlphaBetaBot.playAgainstRandom(true, 6))
+            int score = AlphaBetaBot.playAgainstRandom(true, 6);
+            if(score > 0){
                 wins++;
+            } else if(score == 0){
+                draws++;
+            } else {
+                looses++;
+            }
         }
-        System.out.println(wins);
+        System.out.println(wins + " wins | " + draws + " draws | " + looses + " looses");
     }
 
 
     @Override
     public void onKeyPressed(KeyEvent e) {
-        /*if(e.getKeyCode() == KeyEvent.VK_LEFT){
-            System.out.println("show previous");
-            othelloGraphicManager.showPreviousPosition();
-        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT){
-            othelloGraphicManager.showNextPosition();
-        }*/
+
     }
 }
