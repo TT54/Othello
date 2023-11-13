@@ -10,15 +10,28 @@ public abstract class Bot {
 
     public static final Random random = new Random();
 
-    public Bot(){}
+    private boolean white;
 
+    public Bot(boolean white){
+        this.white = white;
+    }
+
+    public boolean isWhite() {
+        return white;
+    }
+
+    public void setWhite(boolean white) {
+        this.white = white;
+    }
 
     /**
      * Permet de jouer le meilleur coup selon le bot dans la position
-     * @param game Partie en cours
+     *
+     * @param game     Partie en cours
      * @param timeLeft Temps restant (en ms) pour jouer les prochains coups de la partie
+     * @return true si un coup a pu être joué, false sinon
      */
-    public abstract void playMove(OthelloGame game, long timeLeft);
+    public abstract boolean playMove(OthelloGame game, long timeLeft);
 
 
     /**

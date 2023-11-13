@@ -1,5 +1,6 @@
 package fr.tt54.othello.game;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,6 +40,8 @@ public class OthelloGame {
 
         this.whitePiecesCount = 2;
         this.blackPiecesCount = 2;
+
+        Arrays.fill(playedMoves, (byte) -1);
 
         this.generateAvailablePlacements();
     }

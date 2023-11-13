@@ -84,7 +84,7 @@ public class OpeningTree {
         }
 
         public OpeningMove getMoveAfterSequence(byte[] moveSequence, int begin){
-            if(begin >= moveSequence.length)
+            if(begin >= moveSequence.length || moveSequence[begin] == -1)
                 return this;
             byte move = moveSequence[begin];
             if(this.nextMoves.containsKey(move)){
