@@ -13,7 +13,7 @@ public class OthelloGame {
     private int blackPiecesCount = 0;       // Nombre de pièces noires
     public boolean needUpdate = true;       // true si l'affichage du plateau doit être rafraichi, false sinon
 
-    private final byte[] playedMoves = new byte[60];        // Tableau contenant tous les coups joués depuis le début de la partie
+    private final byte[] playedMoves = new byte[64];        // Tableau contenant tous les coups joués depuis le début de la partie
     private Set<Integer> availableMoves = new HashSet<>();  // Set contenant tous les coups valides que l'on peut jouer dans cette position
 
     public OthelloGame(byte[][] board) {
@@ -60,6 +60,26 @@ public class OthelloGame {
     }
 
 
+    public String getGameTranscription(){
+        int i = 0;
+        String transcription = "";
+        int playedMove;
+
+        while ((playedMove = this.playedMoves[i]) >= 0){
+            int[] move = intToPosition(playedMove);
+            transcription += ((char) (move[1] + 97)) + "" + (move[0] + 1);
+            i++;
+        }
+
+        return transcription;
+    }
+
+
+    public boolean playMove(int move){
+        int[] position = intToPosition(move);
+        return playMove(position[0], position[1]);
+    }
+
     /**
      *
      * @param row
@@ -77,7 +97,9 @@ public class OthelloGame {
             this.whitePiecesCount -= modified;
         }
 
-        this.playedMoves[move] = (byte) positionToInt(row, column);
+        if(move < 100) {
+            this.playedMoves[move] = (byte) positionToInt(row, column);
+        }
 
         this.whiteToPlay = !this.whiteToPlay;
         move++;
@@ -218,7 +240,7 @@ public class OthelloGame {
         return 0;
     }
 
-    public int getPiece(int row, int column){
+    public byte getPiece(int row, int column){
         return this.board[row][column];
     }
 

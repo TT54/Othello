@@ -1,6 +1,6 @@
 package fr.tt54.othello;
 
-import fr.tt54.othello.bots.AlphaBetaBot;
+import fr.tt54.othello.bots.Bot;
 import fr.tt54.othello.bots.OpeningTestBot;
 import fr.tt54.othello.game.OthelloGraphicManager;
 import fr.ttgraphiclib.GraphicManager;
@@ -25,8 +25,10 @@ public class Main extends UserListener {
         GraphicManager.enable(frame, panel);
         frame.setMainClass(othelloGraphicManager = new OthelloGraphicManager());
 
-        othelloGraphicManager.playAgainstBot(new OpeningTestBot(true));
+        //othelloGraphicManager.playAgainstBot(new OpeningTestBot(true));
         //playRandomGames();
+
+        Bot.confrontBots(new OpeningTestBot(true), new OpeningTestBot(false), 8, 60 * 1000, true);
     }
 
     @Override

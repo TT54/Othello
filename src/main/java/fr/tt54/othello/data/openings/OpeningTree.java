@@ -2,7 +2,8 @@ package fr.tt54.othello.data.openings;
 
 import fr.tt54.othello.game.OthelloGame;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OpeningTree {
 
@@ -17,6 +18,9 @@ public class OpeningTree {
     }
 
     public OpeningMove getMoveAfterSequence(byte[] moves){
+        if(moves.length == 0 || moves[0] == -1){
+            return firstMove;
+        }
         // On commence à 1 puisque le premier coup est nécessairement f5
         return firstMove.getMoveAfterSequence(moves, 1);
     }

@@ -1,5 +1,6 @@
 package fr.tt54.othello.bots;
 
+import fr.tt54.othello.Main;
 import fr.tt54.othello.game.OthelloGame;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public abstract class Bot {
      * @param timePerGame Le temps (en ms) que possède chaque joueur dans chaque partie
      * @return Le tableau des scores sous la forme [victoires_bot1, nulles, victoires_bot2]
      */
-    public static int[] confrontBots(Bot bot1, Bot bot2, int amount, long timePerGame){
+    public static int[] confrontBots(Bot bot1, Bot bot2, int amount, long timePerGame, boolean showGame){
         int[] score = new int[3];
 
         boolean bot1Color = true; // true si bot1 est blanc, false s'il est noir
@@ -91,6 +92,11 @@ public abstract class Bot {
             long bot1TimeLeft = timePerGame;
             long bot2TimeLeft = timePerGame;
             OthelloGame game = new OthelloGame();
+
+            if(showGame){
+                Main.othelloGraphicManager.playAgainstBot(null);
+                Main.othelloGraphicManager.setGame(game);
+            }
 
             while(!game.isGameFinished()){
                 if(bot1Color == game.isWhiteToPlay()){
@@ -102,6 +108,14 @@ public abstract class Bot {
                     bot2.playMove(game, bot2TimeLeft);
                     bot2TimeLeft -= (System.currentTimeMillis() - beginTime);
                 }
+
+                if(showGame) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
@@ -111,6 +125,11 @@ public abstract class Bot {
             } else {
                 score[1] += 1;
             }
+
+            System.out.println("Game ended on : " + game.getBlackPiecesCount() + " (b) - " + game.getWhitePiecesCount() + " (w)");
+            System.out.println("Game Transcription :");
+            System.out.println(game.getGameTranscription());
+            System.out.println();
 
             bot1Color = !bot1Color;
         }

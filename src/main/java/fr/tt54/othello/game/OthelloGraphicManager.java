@@ -54,6 +54,11 @@ public class OthelloGraphicManager extends MainClass {
         }
 
         if(this.bot != null && this.game.isWhiteToPlay() == this.bot.isWhite()){
+            for(GraphicNode node : new ArrayList<>(this.allowedMovesNodes)){
+                Main.panel.removeNode(node);
+            }
+            this.allowedMovesNodes.clear();
+
             if(!bot.playMove(this.game, 30 * 1000L)){
                 bot = null;
             }
@@ -143,4 +148,7 @@ public class OthelloGraphicManager extends MainClass {
         }
     }
 
+    public void setGame(OthelloGame game) {
+        this.game = game;
+    }
 }

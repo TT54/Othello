@@ -1,10 +1,14 @@
 package fr.tt54.othello.data;
 
+import fr.tt54.othello.data.complexity.AlphaBetaComplexityLoader;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
 import fr.tt54.othello.game.OthelloGame;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class DataManager {
 
@@ -14,6 +18,7 @@ public class DataManager {
 
     public static void main(String[] args) {
         DataManager.enable();
+        analyseComplexityDatas();
     }
 
 
@@ -28,20 +33,42 @@ public class DataManager {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
 
-        System.out.println(mainOpeningTree.getMoveAfterSequence(new byte[] {
-                (byte) OthelloGame.positionToInt(4, 5),
-                (byte) OthelloGame.positionToInt(3, 5),
-                (byte) OthelloGame.positionToInt(2, 4),
-                (byte) OthelloGame.positionToInt(1, 3),
-                (byte) OthelloGame.positionToInt(1, 4)}
-        ).showNextMoves());
+    public static void analyseComplexityDatas(){
+        try {
+            List<long[]> datas = AlphaBetaComplexityLoader.loadDatas(AlphaBetaComplexityLoader.DATA_FOLDER);
 
-        System.out.println("------");
+            int[] readValues = new int[datas.get(0).length];
+            double[] moyennes = new double[readValues.length];
 
-        System.out.println(mainOpeningTree.getMoveAfterSequence(new byte[] {
-                (byte) OthelloGame.positionToInt(4, 5)}
-        ).showNextMoves());
+            for(long[] data : datas){
+                for(int i = 0; i < data.length; i++){
+                    if(i == 0) {
+                        moyennes[i] += data[i];
+                    } else {
+                        // On retire toutes les valeurs pouvant fausser nos résultats
+                        // L'idée est donc de retirer notamment la fin de partie où une recherche à 9 de profondeur est la même qu'à 8 (ou moins) de profondeur
+                        if(data[i] / (double) data[i - 1] < 4){
+                            continue;
+                        }
+
+                        moyennes[i] += data[i] / (double) data[i - 1];
+                        readValues[i]++;
+                    }
+                }
+            }
+
+            for(int i = 0; i < moyennes.length; i++){
+                moyennes[i] /= readValues[i];
+            }
+
+            System.out.println(Arrays.toString(moyennes));
+            System.out.println(Arrays.toString(readValues));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -33,8 +33,8 @@ public class OpeningLoader {
                     score = 1;
                 }
 
-                byte[] firstMoves = new byte[10];
-                for(int i = 0; i < 10; i++){
+                byte[] firstMoves = new byte[60];
+                for(int i = 0; i < 60; i++){
                     firstMoves[i] = (byte) moves[i];
                 }
                 DataManager.mainOpeningTree.insertMoveSequence(firstMoves, score);

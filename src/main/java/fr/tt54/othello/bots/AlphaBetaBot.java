@@ -3,7 +3,8 @@ package fr.tt54.othello.bots;
 import fr.tt54.othello.Main;
 import fr.tt54.othello.game.OthelloGame;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlphaBetaBot {
 
@@ -25,7 +26,7 @@ public class AlphaBetaBot {
                 int[] move = OthelloGame.intToPosition(moves.get(Main.random.nextInt(moves.size())));
                 game.playMove(move[0], move[1]);
             } else {
-                AlphaBetaBot.playBestMove(game, depth, true);
+                AlphaBetaBot.playBestMove(game, depth);
             }
         }
 
@@ -54,8 +55,7 @@ public class AlphaBetaBot {
     }
 
 
-    public static void playBestMove(OthelloGame position, int depth, boolean shouldSort){
-        //System.out.println("on joue un coup");
+    public static void playBestMove(OthelloGame position, int depth){
         int[] result = evaluatePosition(position, depth, position.isWhiteToPlay(), Integer.MIN_VALUE, Integer.MAX_VALUE);
         int[] move = OthelloGame.intToPosition(result[1]);
         position.playMove(move[0], move[1]);
@@ -64,7 +64,7 @@ public class AlphaBetaBot {
 
     public static int[] evaluatePosition(OthelloGame startingPosition, int depth, boolean isMaxPlayer, int alpha, int beta){
         if(depth == 0 || startingPosition.isGameFinished()){
-            return new int[] {MinMaxBot.evaluationFunction(startingPosition)};
+            return new int[] {MinMaxBot.evaluationFunction2(startingPosition)};
         }
 
         List<Integer> availableMoves = new ArrayList<>(startingPosition.getAvailablePlacements());
