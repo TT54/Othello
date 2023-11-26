@@ -10,6 +10,7 @@ import java.util.Random;
 public abstract class Bot {
 
     public static final Random random = new Random();
+    public static final int TIME_BETWEEN_MOVES = 10;
 
     private boolean white;
 
@@ -93,6 +94,9 @@ public abstract class Bot {
             long bot2TimeLeft = timePerGame;
             OthelloGame game = new OthelloGame();
 
+            bot1.setWhite(bot1Color);
+            bot2.setWhite(!bot1Color);
+
             if(showGame){
                 Main.othelloGraphicManager.playAgainstBot(null);
                 Main.othelloGraphicManager.setGame(game);
@@ -111,7 +115,7 @@ public abstract class Bot {
 
                 if(showGame) {
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(TIME_BETWEEN_MOVES);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

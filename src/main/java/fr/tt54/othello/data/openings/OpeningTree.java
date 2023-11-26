@@ -21,6 +21,9 @@ public class OpeningTree {
         if(moves.length == 0 || moves[0] == -1){
             return firstMove;
         }
+        if(moves[0] != firstMove.getMove()){
+            return null;
+        }
         // On commence à 1 puisque le premier coup est nécessairement f5
         return firstMove.getMoveAfterSequence(moves, 1);
     }

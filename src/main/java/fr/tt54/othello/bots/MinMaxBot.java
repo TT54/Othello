@@ -127,11 +127,11 @@ public class MinMaxBot {
     public static int evaluationFunction2(OthelloGame game){
         if(game.isGameFinished()){
             if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
-                return 500;
+                return 500 + game.getWhitePiecesCount() - game.getBlackPiecesCount();
             } else if(game.getWhitePiecesCount() == game.getBlackPiecesCount()) {
                 return 0;
             } else {
-                return -500;
+                return -500 + (game.getWhitePiecesCount() - game.getBlackPiecesCount());
             }
         }
 

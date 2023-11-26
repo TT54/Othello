@@ -18,7 +18,7 @@ public class DataManager {
 
     public static void main(String[] args) {
         DataManager.enable();
-        analyseComplexityDatas();
+        //analyseComplexityDatas();
     }
 
 

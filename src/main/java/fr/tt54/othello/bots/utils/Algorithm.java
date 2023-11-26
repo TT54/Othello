@@ -14,7 +14,7 @@ public class Algorithm {
     private final Map<PlayedPosition, OpeningTestBot.PositionValue> alphaBetaStorage = new HashMap<>();
 
     private MoveEvaluation mtdf(OthelloGame startingPosition, boolean isMaxPlayer, int defaultValue, int depth){
-        MoveEvaluation currentValue = new MoveEvaluation(defaultValue, null);
+        MoveEvaluation currentValue = new MoveEvaluation(defaultValue, null, false);
         int beta;
         int upperBound = Integer.MAX_VALUE;
         int lowerBound = Integer.MIN_VALUE;
@@ -43,16 +43,16 @@ public class Algorithm {
         if(alphaBetaStorage.containsKey(pos)){
             value = alphaBetaStorage.get(pos);
             if(value.lowerbound >= beta){
-                return new MoveEvaluation(value.lowerbound, value.moveChain);
+                return new MoveEvaluation(value.lowerbound, value.moveChain, false);
             } else if(value.upperbound <= alpha){
-                return new MoveEvaluation(value.upperbound, value.moveChain);
+                return new MoveEvaluation(value.upperbound, value.moveChain, false);
             }
             alpha = Math.max(alpha, value.lowerbound);
             beta = Math.min(beta, value.upperbound);
         }
 
         if(startingPosition.isGameFinished() || depth <= 0){
-            return new MoveEvaluation(MinMaxBot.evaluationFunction2(startingPosition), null);
+            return new MoveEvaluation(MinMaxBot.evaluationFunction2(startingPosition), null, startingPosition.isGameFinished());
         }
 
         MoveChain bestMove = null;
@@ -117,7 +117,7 @@ public class Algorithm {
             this.alphaBetaStorage.put(pos, value);
         }
 
-        return new MoveEvaluation(currentEvaluation, bestMove);
+        return new MoveEvaluation(currentEvaluation, bestMove, false);
     }
 
 }
