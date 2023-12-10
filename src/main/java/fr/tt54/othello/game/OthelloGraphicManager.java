@@ -151,4 +151,8 @@ public class OthelloGraphicManager extends MainClass {
     public void setGame(OthelloGame game) {
         this.game = game;
     }
+
+    public OthelloGame getGame() {
+        return this.game;
+    }
 }

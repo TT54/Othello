@@ -74,7 +74,7 @@ public class OpeningTree {
          * @return le dernier coup de la séquence
          */
         public OpeningMove insertMoveSequence(byte[] moveSequence, int begin, int score){
-            if(begin >= moveSequence.length) {
+            if(begin >= moveSequence.length || moveSequence[begin] < 0) {
                 this.addGamePlayed(score);
                 return this;
             }
@@ -108,8 +108,12 @@ public class OpeningTree {
             }
         }
 
-        public float getScore() {
+        public int getScore() {
             return score;
+        }
+
+        public int getGamesAmount() {
+            return gamesAmount;
         }
 
         public String showNextMoves(){

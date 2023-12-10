@@ -55,6 +55,9 @@ public class WTHORReader {
                     // alors que le programme les a sous la forme
                     // b3 ==> 17 = (2 - 1) + (3 - 1) * 8 = 17 ((ligne - 1) + (colonne - 1) * 8)
                     moves[j] = (bytes[i + 8 + j] % 10) - 1 + ((bytes[i + 8 + j] / 10) - 1) * 8;
+                    if(moves[j] < 0){
+                        moves[j] = -1;
+                    }
                 }
 
                 games[game] = new PlayedGame(tournament, blackPlayer, whitePlayer, blackScore, theoreticalBlackScore, moves);
