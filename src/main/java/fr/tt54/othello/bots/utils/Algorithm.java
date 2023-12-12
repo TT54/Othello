@@ -3,6 +3,7 @@ package fr.tt54.othello.bots.utils;
 import fr.tt54.othello.bots.MinMaxBot;
 import fr.tt54.othello.bots.OpeningTestBot;
 import fr.tt54.othello.data.objects.PlayedPosition;
+import fr.tt54.othello.data.patterns.Pattern;
 import fr.tt54.othello.game.OthelloGame;
 
 import java.util.HashMap;
@@ -118,6 +119,29 @@ public class Algorithm {
         }
 
         return new MoveEvaluation(currentEvaluation, bestMove, false);
+    }
+
+    public static float patternEval(OthelloGame game){
+        if(game.isGameFinished()){
+            if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
+                return 500 + game.getWhitePiecesCount() - game.getBlackPiecesCount();
+            } else if(game.getWhitePiecesCount() == game.getBlackPiecesCount()) {
+                return 0;
+            } else {
+                return -500 + (game.getWhitePiecesCount() - game.getBlackPiecesCount());
+            }
+        }
+
+        float value = Pattern.getPatternFromPosition(Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay()).getPatternValue();
+        value += Pattern.getPatternFromPosition(Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay()).getPatternValue();
+        value += Pattern.getPatternFromPosition(Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay()).getPatternValue();
+        value += Pattern.getPatternFromPosition(Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay()).getPatternValue();
+
+        if(!game.isWhiteToPlay()){
+            return value * -1;
+        }
+
+        return value;
     }
 
 }

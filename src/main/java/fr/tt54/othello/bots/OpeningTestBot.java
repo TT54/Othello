@@ -1,5 +1,6 @@
 package fr.tt54.othello.bots;
 
+import fr.tt54.othello.bots.utils.Algorithm;
 import fr.tt54.othello.bots.utils.EvaluationTree;
 import fr.tt54.othello.bots.utils.MoveChain;
 import fr.tt54.othello.bots.utils.MoveEvaluation;
@@ -123,7 +124,8 @@ public class OpeningTestBot extends Bot{
 
     private static MoveEvaluation alphaBeta(OthelloGame startingPosition, int depth, int alpha, int beta){
         if(depth == 0 || startingPosition.isGameFinished()){
-            return new MoveEvaluation(MinMaxBot.evaluationFunction2(startingPosition), null, startingPosition.isGameFinished());
+            //return new MoveEvaluation(MinMaxBot.evaluationFunction2(startingPosition), null, startingPosition.isGameFinished());
+            return new MoveEvaluation((int) Algorithm.patternEval(startingPosition), null, startingPosition.isGameFinished());
         }
 
         if(startingPosition.isWhiteToPlay()){

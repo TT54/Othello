@@ -1,16 +1,15 @@
 package fr.tt54.othello.data;
 
 import fr.tt54.othello.data.complexity.AlphaBetaComplexityLoader;
-import fr.tt54.othello.data.objects.Pattern;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
+import fr.tt54.othello.data.patterns.PatternLoader;
 import fr.tt54.othello.game.OthelloGame;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class DataManager {
 
@@ -22,7 +21,7 @@ public class DataManager {
         DataManager.enable();
         //analyseComplexityDatas();
 
-        generatePatternsValues();
+        //generatePatternsValues();
         System.out.println("enabled");
     }
 
@@ -38,6 +37,8 @@ public class DataManager {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        PatternLoader.loadPatterns(PatternLoader.PATTERNS_WINS_OR_DRAWS);
     }
 
     public static void analyseComplexityDatas(){
@@ -87,45 +88,13 @@ public class DataManager {
     }
 
     private static void generatePatternsValues(){
-        OpeningTree tree = DataManager.mainOpeningTree;
-        readPattersFromMoves(new OthelloGame(), tree.getFirstMove());
-    }
+        try {
+            PatternLoader.generatePatterns(OpeningLoader.HUMAN_GAME_FOLDER);
+            PatternLoader.generatePatterns(OpeningLoader.LOGISTELLO_GAME_FOLDER);
 
-    /**
-     * Stock les données des patterns obtenus à partir d'un certain coup chargé depuis la base de données
-     * @param game
-     * @param currentMove
-     */
-    private static void readPattersFromMoves(OthelloGame game, OpeningTree.OpeningMove currentMove){
-        if(game.getMoveCount() > 60 - 24){
-            // End Game
-            Pattern.addPatternOccurrences(Pattern.GameStage.ENDGAME, game.getTopLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.ENDGAME, game.getTopRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.ENDGAME, game.getBottomLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.ENDGAME, game.getBottomRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-        } else if(game.getMoveCount() > 20){
-            // Mid Game
-            Pattern.addPatternOccurrences(Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-        } else {
-            // Opening
-            Pattern.addPatternOccurrences(Pattern.GameStage.OPENING, game.getTopLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.OPENING, game.getBottomLeftPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.OPENING, game.getTopRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-            Pattern.addPatternOccurrences(Pattern.GameStage.OPENING, game.getBottomRightPattern(), game.isWhiteToPlay(), currentMove.getScore(), currentMove.getGamesAmount());
-        }
-
-
-        if(!currentMove.getNextMoves().isEmpty()){
-            for(Map.Entry<Byte, OpeningTree.OpeningMove> entry : currentMove.getNextMoves().entrySet()){
-                OthelloGame copy = game.clone();
-
-                copy.playMove(entry.getKey());
-
-                readPattersFromMoves(copy, entry.getValue());
-            }
+            PatternLoader.savePatterns();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

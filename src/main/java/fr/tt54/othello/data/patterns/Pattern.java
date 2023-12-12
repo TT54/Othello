@@ -1,4 +1,4 @@
-package fr.tt54.othello.data.objects;
+package fr.tt54.othello.data.patterns;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,12 +60,16 @@ public class Pattern {
         return pawns;
     }
 
-    public int getPlayed() {
+    public int getPlayedGamesAmount() {
         return played;
     }
 
-    public int getWon() {
+    public int getGameWonAmount() {
         return won;
+    }
+
+    public float getPatternValue(){
+        return (won + 0.5f) / (played + 1f) + 0.5f;
     }
 
     @Override
@@ -79,10 +83,45 @@ public class Pattern {
     @Override
     public int hashCode() {
         int code = 0;
-        for(int i = 0; i < pawns.length; i++){
-            code += Math.pow(3, i) * pawns[i];
+        int k = 1;
+        for (int pawn : pawns) {
+            code += k * pawn;
+            k *= 3;
         }
         return code;
+    }
+
+    public static void loadPattern(GameStage stage, int patternValue, int amountWins, int amountPlayed) {
+        int initialValue = patternValue;
+        int[] pawns = new int[9];
+        for(int i = 0; i < 9; i++){
+            pawns[i] = patternValue % 3;
+            patternValue -= pawns[i];
+            patternValue /= 3;
+        }
+
+        Pattern p = new Pattern(pawns, amountPlayed, amountWins);
+
+        if(initialValue != p.hashCode()) {
+            System.out.println(p.hashCode() + " - " + initialValue);
+        }
+
+        if(stage == GameStage.OPENING){
+            Pattern p2 = openingPatterns.getOrDefault(p.hashCode(), p);
+            p2.setPlayed(amountPlayed);
+            p2.setWon(amountWins);
+            openingPatterns.put(p2.hashCode(), p2);
+        } else if(stage == GameStage.MID_GAME){
+            Pattern p2 = midGamePatterns.getOrDefault(p.hashCode(), p);
+            p2.setPlayed(amountPlayed);
+            p2.setWon(amountWins);
+            midGamePatterns.put(p2.hashCode(), p2);
+        } else {
+            Pattern p2 = endGamePatterns.getOrDefault(p.hashCode(), p);
+            p2.setPlayed(amountPlayed);
+            p2.setWon(amountWins);
+            endGamePatterns.put(p2.hashCode(), p2);
+        }
     }
 
     /**
@@ -101,6 +140,18 @@ public class Pattern {
         } else {
             return endGamePatterns.getOrDefault(p.hashCode(), p);
         }
+    }
+
+    public static Map<Integer, Pattern> getOpeningPatterns() {
+        return openingPatterns;
+    }
+
+    public static Map<Integer, Pattern> getEndGamePatterns() {
+        return endGamePatterns;
+    }
+
+    public static Map<Integer, Pattern> getMidGamePatterns() {
+        return midGamePatterns;
     }
 
     public static Pattern addPatternOccurrence(GameStage stage, int[] pattern, boolean whiteToPlay, boolean winningPosition){
