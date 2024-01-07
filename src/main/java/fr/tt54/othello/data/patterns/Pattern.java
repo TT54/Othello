@@ -6,9 +6,7 @@ import java.util.Map;
 
 public class Pattern {
 
-    private static final Map<Integer, Pattern> openingPatterns = new HashMap<>();
-    private static final Map<Integer, Pattern> midGamePatterns = new HashMap<>();
-    private static final Map<Integer, Pattern> endGamePatterns = new HashMap<>();
+    private static final Map<PatternType, Map<GameStage, Map<Integer, Pattern>>> patternsMap = new HashMap<>();
 
     private int[] pawns;
     private int played;
@@ -91,7 +89,7 @@ public class Pattern {
         return code;
     }
 
-    public static void loadPattern(GameStage stage, int patternValue, int amountWins, int amountPlayed) {
+    public static void loadPattern(PatternType patternType, GameStage stage, int patternValue, int amountWins, int amountPlayed) {
         int initialValue = patternValue;
         int[] pawns = new int[9];
         for(int i = 0; i < 9; i++){
@@ -106,22 +104,16 @@ public class Pattern {
             System.out.println(p.hashCode() + " - " + initialValue);
         }
 
-        if(stage == GameStage.OPENING){
-            Pattern p2 = openingPatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(amountPlayed);
-            p2.setWon(amountWins);
-            openingPatterns.put(p2.hashCode(), p2);
-        } else if(stage == GameStage.MID_GAME){
-            Pattern p2 = midGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(amountPlayed);
-            p2.setWon(amountWins);
-            midGamePatterns.put(p2.hashCode(), p2);
-        } else {
-            Pattern p2 = endGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(amountPlayed);
-            p2.setWon(amountWins);
-            endGamePatterns.put(p2.hashCode(), p2);
-        }
+        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
+        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
+        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
+
+        p2.setPlayed(amountPlayed);
+        p2.setWon(amountWins);
+
+        patternMap.put(p2.hashCode(), p2);
+        stageMap.put(stage, patternMap);
+        patternsMap.put(patternType, stageMap);
     }
 
     /**
@@ -131,93 +123,64 @@ public class Pattern {
      * @param whiteToPlay
      * @return Le pattern stocké
      */
-    public static Pattern getPatternFromPosition(GameStage stage, int[] pattern, boolean whiteToPlay){
+    public static Pattern getPatternFromPosition(PatternType type, GameStage stage, int[] pattern, boolean whiteToPlay){
         Pattern p = new Pattern(pattern, whiteToPlay);
-        if(stage == GameStage.OPENING){
-            return openingPatterns.getOrDefault(p.hashCode(), p);
-        } else if(stage == GameStage.MID_GAME){
-            return midGamePatterns.getOrDefault(p.hashCode(), p);
-        } else {
-            return endGamePatterns.getOrDefault(p.hashCode(), p);
-        }
+
+        return patternsMap.getOrDefault(type, new HashMap<>()).getOrDefault(stage, new HashMap<>()).getOrDefault(p.hashCode(), p);
     }
 
-    public static Map<Integer, Pattern> getOpeningPatterns() {
-        return openingPatterns;
+    public static Map<Integer, Pattern> getPattern(PatternType patternType, GameStage stage) {
+        return patternsMap.getOrDefault(patternType, new HashMap<>()).getOrDefault(stage, new HashMap<>());
     }
 
-    public static Map<Integer, Pattern> getEndGamePatterns() {
-        return endGamePatterns;
-    }
-
-    public static Map<Integer, Pattern> getMidGamePatterns() {
-        return midGamePatterns;
-    }
-
-    public static Pattern addPatternOccurrence(GameStage stage, int[] pattern, boolean whiteToPlay, boolean winningPosition){
+    public static Pattern addPatternOccurrence(PatternType patternType, GameStage stage, int[] pattern, boolean whiteToPlay, boolean winningPosition){
         Pattern p = new Pattern(pattern, whiteToPlay);
-        if(stage == GameStage.OPENING){
-            Pattern p2 = openingPatterns.getOrDefault(p.hashCode(), p);
-            p2.addPositionPlayed(winningPosition);
-            openingPatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else if(stage == GameStage.MID_GAME){
-            Pattern p2 = midGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.addPositionPlayed(winningPosition);
-            midGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else {
-            Pattern p2 = endGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.addPositionPlayed(winningPosition);
-            endGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        }
+
+        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
+        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
+        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
+
+        p2.addPositionPlayed(winningPosition);
+
+        patternMap.put(p2.hashCode(), p2);
+        stageMap.put(stage, patternMap);
+        patternsMap.put(patternType, stageMap);
+
+        return p2;
     }
 
-    public static Pattern setPatternOccurrences(GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
+    public static Pattern setPatternOccurrences(PatternType patternType, GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
         Pattern p = new Pattern(pattern, whiteToPlay);
-        if(stage == GameStage.OPENING){
-            Pattern p2 = openingPatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(playedPositions);
-            p2.setWon(wonPositions);
-            openingPatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else if(stage == GameStage.MID_GAME){
-            Pattern p2 = midGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(playedPositions);
-            p2.setWon(wonPositions);
-            midGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else {
-            Pattern p2 = endGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.setPlayed(playedPositions);
-            p2.setWon(wonPositions);
-            endGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        }
+
+        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
+        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
+        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
+
+        p2.setPlayed(playedPositions);
+        p2.setWon(wonPositions);
+
+        patternMap.put(p2.hashCode(), p2);
+        stageMap.put(stage, patternMap);
+        patternsMap.put(patternType, stageMap);
+
+        return p2;
     }
 
-    public static Pattern addPatternOccurrences(GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
+    public static Pattern addPatternOccurrences(PatternType patternType, GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
         Pattern p = new Pattern(pattern, whiteToPlay);
-        if(stage == GameStage.OPENING){
-            Pattern p2 = openingPatterns.getOrDefault(p.hashCode(), p);
-            p2.addPlayed(playedPositions);
-            p2.addWon(wonPositions);
-            openingPatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else if(stage == GameStage.MID_GAME){
-            Pattern p2 = midGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.addPlayed(playedPositions);
-            p2.addWon(wonPositions);
-            midGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        } else {
-            Pattern p2 = endGamePatterns.getOrDefault(p.hashCode(), p);
-            p2.addPlayed(playedPositions);
-            p2.addWon(wonPositions);
-            endGamePatterns.put(p2.hashCode(), p2);
-            return p2;
-        }
+
+        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
+        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
+        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
+
+        p2.addPlayed(playedPositions);
+        p2.addWon(wonPositions);
+
+        patternMap.put(p2.hashCode(), p2);
+        stageMap.put(stage, patternMap);
+        patternsMap.put(patternType, stageMap);
+
+        return p2;
     }
 
 
@@ -225,5 +188,10 @@ public class Pattern {
         OPENING,
         MID_GAME,
         ENDGAME;
+    }
+
+    public enum PatternType{
+        CORNER,
+        BORDER;
     }
 }

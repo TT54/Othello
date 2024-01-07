@@ -3,6 +3,7 @@ package fr.tt54.othello.data;
 import fr.tt54.othello.data.complexity.AlphaBetaComplexityLoader;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
+import fr.tt54.othello.data.patterns.PatternBotTraining;
 import fr.tt54.othello.data.patterns.PatternLoader;
 import fr.tt54.othello.game.OthelloGame;
 
@@ -23,6 +24,9 @@ public class DataManager {
 
         //generatePatternsValues();
         System.out.println("enabled");
+
+        PatternBotTraining.start();
+        System.out.println("Starting Training");
     }
 
 
@@ -30,7 +34,7 @@ public class DataManager {
         if(enabled) return;
         enabled = true;
 
-        mainOpeningTree = new OpeningTree((byte) OthelloGame.positionToInt(5, 4));
+        mainOpeningTree = new OpeningTree((byte) OthelloGame.positionToInt(4, 5));
         try {
             OpeningLoader.loadGames(OpeningLoader.HUMAN_GAME_FOLDER);
             OpeningLoader.loadGames(OpeningLoader.LOGISTELLO_GAME_FOLDER);
@@ -38,7 +42,7 @@ public class DataManager {
             e.printStackTrace();
         }
 
-        PatternLoader.loadPatterns(PatternLoader.PATTERNS_WINS_OR_DRAWS);
+        PatternLoader.loadPatterns(PatternLoader.PATTERNS_V2);
     }
 
     public static void analyseComplexityDatas(){
@@ -75,16 +79,6 @@ public class DataManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    
-    
-    private static void testPatterns(){
-        OthelloGame game = new OthelloGame("a1b1a2b2g1g2h1h2a8a7b8b7h8g8h7g7");
-
-        System.out.println(Arrays.toString(game.getTopLeftPattern()));
-        System.out.println(Arrays.toString(game.getTopRightPattern()));
-        System.out.println(Arrays.toString(game.getBottomLeftPattern()));
-        System.out.println(Arrays.toString(game.getBottomRightPattern()));
     }
 
     private static void generatePatternsValues(){

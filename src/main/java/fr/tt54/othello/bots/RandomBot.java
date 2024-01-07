@@ -15,4 +15,11 @@ public class RandomBot extends Bot{
         game.playMove(new ArrayList<>(game.getAvailablePlacements()).get(random.nextInt(game.getAvailablePlacements().size())));
         return true;
     }
+
+    @Override
+    public Bot copy() {
+        return new RandomBot(isWhite());
+    }
+
+
 }

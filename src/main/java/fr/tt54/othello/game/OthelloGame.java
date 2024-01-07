@@ -241,7 +241,11 @@ public class OthelloGame {
     }
 
     public byte getPiece(int row, int column){
-        return this.board[row][column];
+        try {
+            return this.board[row][column];
+        } catch (IndexOutOfBoundsException e){
+            return 0;
+        }
     }
 
     public boolean isWhiteToPlay() {
@@ -342,6 +346,69 @@ public class OthelloGame {
         pattern[6] = this.getPiece(7, 2);
         pattern[7] = this.getPiece(6, 2);
         pattern[8] = this.getPiece(5, 2);
+
+        return pattern;
+    }
+
+    public int[] getTopBorderPattern(){
+        int[] pattern = new int[8];
+
+        pattern[0] = this.getPiece(0, 0);
+        pattern[1] = this.getPiece(0, 1);
+        pattern[2] = this.getPiece(0, 2);
+        pattern[3] = this.getPiece(0, 3);
+        pattern[4] = this.getPiece(0, 4);
+        pattern[5] = this.getPiece(0, 5);
+        pattern[6] = this.getPiece(0, 6);
+        pattern[7] = this.getPiece(0, 7);
+
+        return pattern;
+    }
+
+
+    public int[] getBottomBorderPattern(){
+        int[] pattern = new int[8];
+
+        pattern[0] = this.getPiece(7, 7);
+        pattern[1] = this.getPiece(7, 6);
+        pattern[2] = this.getPiece(7, 5);
+        pattern[3] = this.getPiece(7, 4);
+        pattern[4] = this.getPiece(7, 3);
+        pattern[5] = this.getPiece(7, 2);
+        pattern[6] = this.getPiece(7, 1);
+        pattern[7] = this.getPiece(7, 0);
+
+        return pattern;
+    }
+
+
+    public int[] getLeftBorderPattern(){
+        int[] pattern = new int[8];
+
+        pattern[0] = this.getPiece(7, 0);
+        pattern[1] = this.getPiece(6, 0);
+        pattern[2] = this.getPiece(5, 0);
+        pattern[3] = this.getPiece(4, 0);
+        pattern[4] = this.getPiece(3, 0);
+        pattern[5] = this.getPiece(2, 0);
+        pattern[6] = this.getPiece(1, 0);
+        pattern[7] = this.getPiece(0, 0);
+
+        return pattern;
+    }
+
+
+    public int[] getRightBorderPattern(){
+        int[] pattern = new int[8];
+
+        pattern[0] = this.getPiece(0, 7);
+        pattern[1] = this.getPiece(1, 7);
+        pattern[2] = this.getPiece(2, 7);
+        pattern[3] = this.getPiece(3, 7);
+        pattern[4] = this.getPiece(4, 7);
+        pattern[5] = this.getPiece(5, 7);
+        pattern[6] = this.getPiece(6, 7);
+        pattern[7] = this.getPiece(7, 7);
 
         return pattern;
     }
