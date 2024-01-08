@@ -31,7 +31,7 @@ public class Main extends UserListener {
         //playRandomGames();
 
         //Bot.confrontBots(new OpeningTestBot(true), new OpeningTestBot(false), 8, 60 * 1000, true);
-        System.out.println(Arrays.toString(Bot.confrontBots(new AdvancedPatternEvalBot(true), new AdvancedPatternEvalBot(false, 0, 0, 1, 0, UUID.randomUUID()), 2, 10 * 1000, true)));
+        System.out.println(Arrays.toString(Bot.confrontBots(new AdvancedPatternEvalBot(true), new AdvancedPatternEvalBot(false, 0, 0, 1, 0, UUID.randomUUID()), 2, 30 * 1000, true)));
         //System.out.println(Arrays.toString(Bot.confrontBots(new RandomBot(true), new OpeningTestBot(false), 100, 30 * 1000, true)));
     }
 
