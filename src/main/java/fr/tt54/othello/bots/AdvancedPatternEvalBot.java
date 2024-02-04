@@ -8,9 +8,9 @@ import java.util.UUID;
 
 public class AdvancedPatternEvalBot extends Bot{
 
-    private double cornerCoeff = 0d;
-    private double borderCoeff = 100000d;
-    private double tableCoeff = 1d;
+    private double cornerCoeff = 516.0555568762916d;
+    private double borderCoeff = 600;
+    private double tableCoeff = 0.31;
     private double freedomCoeff = 0d;
 
     private final UUID botUUID;

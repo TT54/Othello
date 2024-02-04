@@ -33,22 +33,6 @@ public class Main extends UserListener {
         //playRandomGames();
 
         //Bot.confrontBots(new OpeningTestBot(true), new OpeningTestBot(false), 8, 60 * 1000, true);
-
-
-/*        System.out.println(Pattern.getPatternFromPosition(Pattern.PatternType.MAIN_DIAGONAL, Pattern.GameStage.MID_GAME,
-                othelloGraphicManager.getGame().getPattern(Pattern.PatternType.MAIN_DIAGONAL.getPatternsLocations()[0]), othelloGraphicManager.getGame().isWhiteToPlay()).getPatternValue());
-
-        Pattern p = new Pattern(othelloGraphicManager.getGame().getPattern(Pattern.PatternType.MAIN_DIAGONAL.getPatternsLocations()[0]), false);
-        System.out.println(p.hashCode());
-        System.out.println(Pattern.getPatternFromPosition(Pattern.PatternType.MAIN_DIAGONAL, Pattern.GameStage.MID_GAME, p.getPawns(), true).getPatternValue());
-
-        Pattern p2 = Pattern.getPatternFromPosition(Pattern.PatternType.MAIN_DIAGONAL, Pattern.GameStage.MID_GAME,
-                othelloGraphicManager.getGame().getPattern(Pattern.PatternType.MAIN_DIAGONAL.getPatternsLocations()[0]), othelloGraphicManager.getGame().isWhiteToPlay());
-        System.out.println(p2.hashCode());
-        System.out.println(p2.getGameWonAmount());
-        System.out.println(p2.getPlayedGamesAmount());*/
-
-
         System.out.println(Arrays.toString(Bot.confrontBots(new AdvancedPatternEvalBot(true), new TableEvalBot(false), 2, 30 * 1000, true)));
 
         //System.out.println(Arrays.toString(Bot.confrontBots(new RandomBot(true), new OpeningTestBot(false), 100, 30 * 1000, true)));
