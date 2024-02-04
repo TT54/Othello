@@ -1,6 +1,5 @@
 package fr.tt54.othello.bots;
 
-import fr.tt54.othello.bots.utils.Evaluation;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.patterns.Pattern;
 import fr.tt54.othello.game.OthelloGame;
@@ -83,7 +82,7 @@ public class AdvancedPatternEvalBot extends Bot{
 
         double value = 0;
 
-        double cornerValue = Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay()).getPatternValue();
+        /*double cornerValue = Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay()).getPatternValue();
         cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay()).getPatternValue();
         cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay()).getPatternValue();
         cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay()).getPatternValue();
@@ -91,17 +90,23 @@ public class AdvancedPatternEvalBot extends Bot{
         double borderValue = Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getTopBorderPattern(), game.isWhiteToPlay()).getPatternValue();
         borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getBottomBorderPattern(), game.isWhiteToPlay()).getPatternValue();
         borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getLeftBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getRightBorderPattern(), game.isWhiteToPlay()).getPatternValue();
+        borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getRightBorderPattern(), game.isWhiteToPlay()).getPatternValue();*/
+
+        for(Pattern.PatternType patternType : Pattern.PatternType.values()){
+            for(int[][] patternLocation : patternType.getPatternsLocations()){
+                value += Pattern.getPatternFromPosition(patternType, game.getMoveCount() > 60 - 24 ? Pattern.GameStage.ENDGAME : (game.getMoveCount() > 10 ? Pattern.GameStage.MID_GAME : Pattern.GameStage.OPENING), game.getPattern(patternLocation), game.isWhiteToPlay()).getPatternValue();
+            }
+        }
 
         //value += this.cornerCoeff * cornerValue + this.borderCoeff * borderValue + this.freedomCoeff * evaluateFreedomDegree(game);
-        value += this.cornerCoeff * cornerValue + this.borderCoeff * borderValue;
+        //value += this.cornerCoeff * cornerValue + this.borderCoeff * borderValue;
 
         if(!game.isWhiteToPlay()){
             return value * -1;
         }
 
         // On ajoute l'évaluation via le tableau après car elle est déjà du bon signe (négative si avantage noir, positive si avantage blanc)
-        value += this.tableCoeff * Evaluation.tableEval(game);
+        //value += this.tableCoeff * Evaluation.tableEval(game);
 
         return value;
     }

@@ -286,131 +286,17 @@ public class OthelloGame {
         return blackPiecesCount;
     }
 
-    public int[] getTopLeftPattern(){
-        int[] pattern = new int[9];
-
-        pattern[0] = this.getPiece(0, 0);
-        pattern[1] = this.getPiece(0, 1);
-        pattern[2] = this.getPiece(0, 2);
-        pattern[3] = this.getPiece(1, 0);
-        pattern[4] = this.getPiece(1, 1);
-        pattern[5] = this.getPiece(1, 2);
-        pattern[6] = this.getPiece(2, 0);
-        pattern[7] = this.getPiece(2, 1);
-        pattern[8] = this.getPiece(2, 2);
-
-        return pattern;
-    }
-
-    public int[] getTopRightPattern(){
-        int[] pattern = new int[9];
-
-        pattern[0] = this.getPiece(0, 7);
-        pattern[1] = this.getPiece(1, 7);
-        pattern[2] = this.getPiece(2, 7);
-        pattern[3] = this.getPiece(0, 6);
-        pattern[4] = this.getPiece(1, 6);
-        pattern[5] = this.getPiece(2, 6);
-        pattern[6] = this.getPiece(0, 5);
-        pattern[7] = this.getPiece(1, 5);
-        pattern[8] = this.getPiece(2, 5);
-
-        return pattern;
-    }
-
-    public int[] getBottomRightPattern(){
-        int[] pattern = new int[9];
-
-        pattern[0] = this.getPiece(7, 7);
-        pattern[1] = this.getPiece(7, 6);
-        pattern[2] = this.getPiece(7, 5);
-        pattern[3] = this.getPiece(6, 7);
-        pattern[4] = this.getPiece(6, 6);
-        pattern[5] = this.getPiece(6, 5);
-        pattern[6] = this.getPiece(5, 7);
-        pattern[7] = this.getPiece(5, 6);
-        pattern[8] = this.getPiece(5, 5);
-
-        return pattern;
-    }
-
-    public int[] getBottomLeftPattern(){
-        int[] pattern = new int[9];
-
-        pattern[0] = this.getPiece(7, 0);
-        pattern[1] = this.getPiece(6, 0);
-        pattern[2] = this.getPiece(5, 0);
-        pattern[3] = this.getPiece(7, 1);
-        pattern[4] = this.getPiece(6, 1);
-        pattern[5] = this.getPiece(5, 1);
-        pattern[6] = this.getPiece(7, 2);
-        pattern[7] = this.getPiece(6, 2);
-        pattern[8] = this.getPiece(5, 2);
-
-        return pattern;
-    }
-
-    public int[] getTopBorderPattern(){
-        int[] pattern = new int[8];
-
-        pattern[0] = this.getPiece(0, 0);
-        pattern[1] = this.getPiece(0, 1);
-        pattern[2] = this.getPiece(0, 2);
-        pattern[3] = this.getPiece(0, 3);
-        pattern[4] = this.getPiece(0, 4);
-        pattern[5] = this.getPiece(0, 5);
-        pattern[6] = this.getPiece(0, 6);
-        pattern[7] = this.getPiece(0, 7);
-
-        return pattern;
-    }
-
-
-    public int[] getBottomBorderPattern(){
-        int[] pattern = new int[8];
-
-        pattern[0] = this.getPiece(7, 7);
-        pattern[1] = this.getPiece(7, 6);
-        pattern[2] = this.getPiece(7, 5);
-        pattern[3] = this.getPiece(7, 4);
-        pattern[4] = this.getPiece(7, 3);
-        pattern[5] = this.getPiece(7, 2);
-        pattern[6] = this.getPiece(7, 1);
-        pattern[7] = this.getPiece(7, 0);
-
-        return pattern;
-    }
-
-
-    public int[] getLeftBorderPattern(){
-        int[] pattern = new int[8];
-
-        pattern[0] = this.getPiece(7, 0);
-        pattern[1] = this.getPiece(6, 0);
-        pattern[2] = this.getPiece(5, 0);
-        pattern[3] = this.getPiece(4, 0);
-        pattern[4] = this.getPiece(3, 0);
-        pattern[5] = this.getPiece(2, 0);
-        pattern[6] = this.getPiece(1, 0);
-        pattern[7] = this.getPiece(0, 0);
-
-        return pattern;
-    }
-
-
-    public int[] getRightBorderPattern(){
-        int[] pattern = new int[8];
-
-        pattern[0] = this.getPiece(0, 7);
-        pattern[1] = this.getPiece(1, 7);
-        pattern[2] = this.getPiece(2, 7);
-        pattern[3] = this.getPiece(3, 7);
-        pattern[4] = this.getPiece(4, 7);
-        pattern[5] = this.getPiece(5, 7);
-        pattern[6] = this.getPiece(6, 7);
-        pattern[7] = this.getPiece(7, 7);
-
-        return pattern;
+    /**
+     * Récupère les pièces associées à un pattern
+     * @param pattern la liste des positions du pattern (trouvable via PatternType.getPatternsLocations() )
+     * @return La liste des pièces associées au pattern sélectionné
+     */
+    public int[] getPattern(int[][] pattern){
+        int[] result = new int[pattern.length];
+        for(int i = 0; i < pattern.length; i++){
+            result[i] = this.getPiece(pattern[i][0], pattern[i][1]);
+        }
+        return result;
     }
 
 
