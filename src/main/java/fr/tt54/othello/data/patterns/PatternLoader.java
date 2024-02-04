@@ -16,6 +16,7 @@ public class PatternLoader {
     public static final String PATTERNS_WINS_ONLY = "/patterns/patterns_wins_only.json";
     public static final String PATTERNS_WINS_OR_DRAWS = "/patterns/patterns_wins_or_draws.json";
     public static final String PATTERNS_V2 = "/patterns/patterns_v2.json";
+    public static final String PATTERNS_REWORK = "/patterns/patterns_rework.json";
 
     public static void generatePatterns(String resourceFolder) throws FileNotFoundException {
         File folder = new File(OpeningLoader.class.getResource(resourceFolder).getFile());
@@ -45,37 +46,25 @@ public class PatternLoader {
                     if(i >= 16 && i <= (60 - 23)){
                         if(game.getMoveCount() > 60 - 24){
                             // End Game
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.ENDGAME, game.getTopLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.ENDGAME, game.getTopRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.ENDGAME, game.getBottomLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.ENDGAME, game.getBottomRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.ENDGAME, game.getTopBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.ENDGAME, game.getBottomBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.ENDGAME, game.getLeftBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.ENDGAME, game.getRightBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                            for(Pattern.PatternType patternType : Pattern.PatternType.values()){
+                                for(int[][] patternLocation : patternType.getPatternsLocations()){
+                                    Pattern.addPatternOccurrence(patternType, Pattern.GameStage.ENDGAME, game.getPattern(patternLocation), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                                }
+                            }
                         } else if(game.getMoveCount() > 10){
                             // Mid Game
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getTopBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getBottomBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getLeftBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getRightBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                            for(Pattern.PatternType patternType : Pattern.PatternType.values()){
+                                for(int[][] patternLocation : patternType.getPatternsLocations()){
+                                    Pattern.addPatternOccurrence(patternType, Pattern.GameStage.MID_GAME, game.getPattern(patternLocation), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                                }
+                            }
                         } else {
                             // Opening
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.OPENING, game.getTopLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.OPENING, game.getBottomLeftPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.OPENING, game.getTopRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.CORNER, Pattern.GameStage.OPENING, game.getBottomRightPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.OPENING, game.getTopBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.OPENING, game.getBottomBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.OPENING, game.getLeftBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
-                            Pattern.addPatternOccurrence(Pattern.PatternType.BORDER, Pattern.GameStage.OPENING, game.getRightBorderPattern(), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                            for(Pattern.PatternType patternType : Pattern.PatternType.values()){
+                                for(int[][] patternLocation : patternType.getPatternsLocations()){
+                                    Pattern.addPatternOccurrence(patternType, Pattern.GameStage.OPENING, game.getPattern(patternLocation), game.isWhiteToPlay(), (game.isWhiteToPlay()) ? score >= 0 : score <= 0);
+                                }
+                            }
                         }
                     }
                 }
@@ -129,12 +118,12 @@ public class PatternLoader {
             for(Pattern.PatternType patternType : Pattern.PatternType.values()){
                 JSONObject typeObject = (JSONObject) jsonObject.get(patternType.name().toLowerCase());
 
-                for(Pattern.GameStage gameStage : Pattern.GameStage.values()){
-                    JSONObject stageObject = (JSONObject) typeObject.get(gameStage.name().toLowerCase());
+                if(typeObject != null) {
+                    for (Pattern.GameStage gameStage : Pattern.GameStage.values()) {
+                        JSONObject stageObject = (JSONObject) typeObject.get(gameStage.name().toLowerCase());
 
-                    for(Map.Entry<Integer, Pattern> entry : Pattern.getPattern(patternType, gameStage).entrySet()){
-                        for(Object keyObject : stageObject.keySet()){
-                            if(keyObject instanceof String key){
+                        for (Object keyObject : stageObject.keySet()) {
+                            if (keyObject instanceof String key) {
                                 int patternValue = Integer.parseInt(key);
                                 JSONObject patternObject = (JSONObject) stageObject.get(keyObject);
                                 int amountWins = (int) ((long) patternObject.get("amount_wins"));

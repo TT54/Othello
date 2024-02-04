@@ -16,15 +16,13 @@ public class Evaluation {
             }
         }
 
-        float value = Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay()).getPatternValue();
+        float value = 0;
 
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getTopBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getBottomBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getLeftBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        value += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getRightBorderPattern(), game.isWhiteToPlay()).getPatternValue();
+        for(Pattern.PatternType patternType : Pattern.PatternType.values()){
+            for(int[][] patternLocation : patternType.getPatternsLocations()){
+                value += Pattern.getPatternFromPosition(patternType, Pattern.GameStage.MID_GAME, game.getPattern(patternLocation), game.isWhiteToPlay()).getPatternValue();
+            }
+        }
 
         if(!game.isWhiteToPlay()){
             return value * -1;

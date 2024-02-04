@@ -3,7 +3,6 @@ package fr.tt54.othello.data;
 import fr.tt54.othello.data.complexity.AlphaBetaComplexityLoader;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
-import fr.tt54.othello.data.patterns.PatternBotTraining;
 import fr.tt54.othello.data.patterns.PatternLoader;
 import fr.tt54.othello.game.OthelloGame;
 
@@ -25,7 +24,7 @@ public class DataManager {
         //generatePatternsValues();
         System.out.println("enabled");
 
-        PatternBotTraining.start();
+        DataManager.generatePatternsValues();
         System.out.println("Starting Training");
     }
 
@@ -42,7 +41,8 @@ public class DataManager {
             e.printStackTrace();
         }
 
-        PatternLoader.loadPatterns(PatternLoader.PATTERNS_V2);
+        PatternLoader.loadPatterns(PatternLoader.PATTERNS_REWORK);
+        System.out.println("patterns loaded");
     }
 
     public static void analyseComplexityDatas(){
