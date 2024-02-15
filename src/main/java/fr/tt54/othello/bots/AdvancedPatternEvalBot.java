@@ -1,53 +1,51 @@
 package fr.tt54.othello.bots;
 
+import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.patterns.Pattern;
 import fr.tt54.othello.game.OthelloGame;
 
-import java.util.UUID;
+import java.util.Arrays;
 
 public class AdvancedPatternEvalBot extends Bot{
 
-    private double cornerCoeff = 516.0555568762916d;
-    private double borderCoeff = 600;
-    private double tableCoeff = 0.31;
-    private double freedomCoeff = 0d;
 
-    private final UUID botUUID;
+    public int depthSearch = 3; // Profondeur de recherche de l'algorithme alpha-beta. Si la profondeur vaut -1, le programme
+    // joue en fonction du temps à sa disposition
+
+    public final float[] patternCoeffs;
+    public float freedomCoeff;
+
 
     public AdvancedPatternEvalBot(boolean white) {
         super(white);
         DataManager.enable();
-        botUUID = UUID.randomUUID();
+
+        patternCoeffs = new float[Pattern.PatternType.values().length];
+        Arrays.fill(patternCoeffs, 1f);
+        freedomCoeff = 0;
     }
 
-    public double getCornerCoeff() {
-        return cornerCoeff;
-    }
-
-    public double getBorderCoeff() {
-        return borderCoeff;
-    }
-
-    public double getTableCoeff() {
-        return tableCoeff;
-    }
-
-    public double getFreedomCoeff() {
-        return freedomCoeff;
-    }
-
-    public AdvancedPatternEvalBot(boolean white, double cornerCoeff, double borderCoeff, double tableCoeff, double freedomCoeff, UUID botUUID) {
+    public AdvancedPatternEvalBot(boolean white, int depthSearch) {
         super(white);
-        this.cornerCoeff = cornerCoeff;
-        this.borderCoeff = borderCoeff;
-        this.tableCoeff = tableCoeff;
-        this.freedomCoeff = freedomCoeff;
-        this.botUUID = botUUID;
+        this.depthSearch = depthSearch;
+
+        patternCoeffs = new float[Pattern.PatternType.values().length];
+        Arrays.fill(patternCoeffs, 1f);
+        freedomCoeff = 0;
     }
 
-    public UUID getUUID() {
-        return botUUID;
+    public AdvancedPatternEvalBot(boolean white, float[] patternCoeffs, float freedomCoeff) {
+        super(white);
+        this.patternCoeffs = patternCoeffs;
+        this.freedomCoeff = freedomCoeff;
+    }
+
+    public AdvancedPatternEvalBot(boolean white, int depthSearch, float[] patternCoeffs, float freedomCoeff) {
+        super(white);
+        this.depthSearch = depthSearch;
+        this.patternCoeffs = patternCoeffs;
+        this.freedomCoeff = freedomCoeff;
     }
 
     @Override
@@ -56,7 +54,12 @@ public class AdvancedPatternEvalBot extends Bot{
         long timeToPlay = (timeLeft == -1) ? Long.MAX_VALUE : (movesToPlayLeft == 0) ? timeLeft : timeLeft / movesToPlayLeft;
 
         if (!this.tryOpeningMove(game)) {
-            iterativeSearch(game, timeToPlay, 0, 0, this::advancedEvaluation);
+            if(depthSearch < 0) {
+                iterativeSearch(game, timeToPlay, 0, 0, this::advancedEvaluation);
+            } else {
+                MoveEvaluation result = alphaBeta(game.clone(), depthSearch, Integer.MIN_VALUE, Integer.MAX_VALUE, this::advancedEvaluation);
+                game.playMove(result.getMoveChain().getPosition());
+            }
         }
 
         return true;
@@ -64,7 +67,7 @@ public class AdvancedPatternEvalBot extends Bot{
 
     @Override
     public Bot copy() {
-        Bot bot = new AdvancedPatternEvalBot(isWhite(), cornerCoeff, borderCoeff, tableCoeff, freedomCoeff, botUUID);
+        Bot bot = new AdvancedPatternEvalBot(isWhite(), this.depthSearch, this.patternCoeffs, this.freedomCoeff);
         bot.setBotNumber(this.getBotNumber());
         return bot;
     }
@@ -82,24 +85,14 @@ public class AdvancedPatternEvalBot extends Bot{
 
         double value = 0;
 
-        /*double cornerValue = Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopLeftPattern(), game.isWhiteToPlay()).getPatternValue();
-        cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getTopRightPattern(), game.isWhiteToPlay()).getPatternValue();
-        cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomLeftPattern(), game.isWhiteToPlay()).getPatternValue();
-        cornerValue += Pattern.getPatternFromPosition(Pattern.PatternType.CORNER, Pattern.GameStage.MID_GAME, game.getBottomRightPattern(), game.isWhiteToPlay()).getPatternValue();
-
-        double borderValue = Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getTopBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getBottomBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getLeftBorderPattern(), game.isWhiteToPlay()).getPatternValue();
-        borderValue += Pattern.getPatternFromPosition(Pattern.PatternType.BORDER, Pattern.GameStage.MID_GAME, game.getRightBorderPattern(), game.isWhiteToPlay()).getPatternValue();*/
-
+        int i = 0;
         for(Pattern.PatternType patternType : Pattern.PatternType.values()){
             for(int[][] patternLocation : patternType.getPatternsLocations()){
-                value += Pattern.getPatternFromPosition(patternType, game.getMoveCount() > 60 - 24 ? Pattern.GameStage.ENDGAME : (game.getMoveCount() > 10 ? Pattern.GameStage.MID_GAME : Pattern.GameStage.OPENING), game.getPattern(patternLocation), game.isWhiteToPlay()).getPatternValue();
+                value += patternCoeffs[i] * Pattern.getPatternFromPosition(patternType, game.getMoveCount() > 60 - 24 ? Pattern.GameStage.ENDGAME : (game.getMoveCount() > 10 ? Pattern.GameStage.MID_GAME : Pattern.GameStage.OPENING), game.getPattern(patternLocation), game.isWhiteToPlay()).getPatternValue();
             }
+            i++;
         }
 
-        //value += this.cornerCoeff * cornerValue + this.borderCoeff * borderValue + this.freedomCoeff * evaluateFreedomDegree(game);
-        //value += this.cornerCoeff * cornerValue + this.borderCoeff * borderValue;
 
         if(!game.isWhiteToPlay()){
             return value * -1;
@@ -107,12 +100,15 @@ public class AdvancedPatternEvalBot extends Bot{
 
         // On ajoute l'évaluation via le tableau après car elle est déjà du bon signe (négative si avantage noir, positive si avantage blanc)
         //value += this.tableCoeff * Evaluation.tableEval(game);
+        if(freedomCoeff != 0) {
+            value += freedomCoeff * evaluateFreedomDegree(game);
+        }
 
         return value;
     }
 
     private double evaluateFreedomDegree(OthelloGame game){
-        int boardFreedom = -1;
+        int boardFreedom = 0;
 
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){

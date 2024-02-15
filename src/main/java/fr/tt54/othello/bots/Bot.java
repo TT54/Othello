@@ -8,6 +8,8 @@ import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.openings.OpeningTree;
 import fr.tt54.othello.game.OthelloGame;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public abstract class Bot {
@@ -233,10 +235,11 @@ public abstract class Bot {
      * @param bot2 Le second programme
      * @param amount Le nombre de parties jouées
      * @param timePerPlayer Le temps (en ms) que possède chaque joueur dans chaque partie
-     * @return Le tableau des scores sous la forme [victoires_bot1, nulles, victoires_bot2]
+     * @return Le résultat des parties
      */
-    public static int[] confrontBots(Bot bot1, Bot bot2, int amount, long timePerPlayer, boolean showGame){
+    public static GameResults confrontBots(Bot bot1, Bot bot2, int amount, long timePerPlayer, boolean showGame){
         int[] score = new int[3];
+        GameResult[] results = new GameResult[amount];
 
         boolean bot1Color = bot1.isWhite(); // true si bot1 est blanc, false s'il est noir
 
@@ -254,12 +257,11 @@ public abstract class Bot {
             }
 
             while(!game.isGameFinished()){
+                long beginTime = System.currentTimeMillis();
                 if(bot1Color == game.isWhiteToPlay()){
-                    long beginTime = System.currentTimeMillis();
                     bot1.playMove(game, bot1TimeLeft);
                     bot1TimeLeft -= (System.currentTimeMillis() - beginTime);
                 } else {
-                    long beginTime = System.currentTimeMillis();
                     bot2.playMove(game, bot2TimeLeft);
                     bot2TimeLeft -= (System.currentTimeMillis() - beginTime);
                 }
@@ -299,13 +301,69 @@ public abstract class Bot {
             System.out.println("Game ended on : " + game.getBlackPiecesCount() + " (b) - " + game.getWhitePiecesCount() + " (w)");
             System.out.println("Game Transcription :");
             System.out.println(game.getGameTranscription());
+
             System.out.println();
+
+            GameResult result = new GameResult(bot1.isWhite() ? game.getWhitePiecesCount() : game.getBlackPiecesCount(),
+                    bot2.isWhite() ? game.getWhitePiecesCount() : game.getBlackPiecesCount());
+            results[i] = result;
 
             bot1Color = !bot1Color;
         }
 
+        return new GameResults(results);
+    }
 
-        return score;
+    public record GameResult(int player1Score, int player2Score){
+
+        public int getScore(){
+            return Integer.compare(player1Score, player2Score);
+        }
+
+    }
+
+    public record GameResults(GameResult[] results){
+
+        public int getTotalPlayer1Pawns(){
+            int sum = 0;
+            for(GameResult result : results){
+                sum += result.player1Score;
+            }
+            return sum;
+        }
+
+        public int getTotalPlayer2Pawns(){
+            int sum = 0;
+            for(GameResult result : results){
+                sum += result.player2Score;
+            }
+            return sum;
+        }
+
+        public float getPlayer1Score(){
+            float sum = 0;
+            for(GameResult result : results){
+                sum += (result.getScore() + 1) / 2f;
+            }
+            return sum;
+        }
+
+        public float getPlayer2Score(){
+            float sum = 0;
+            for(GameResult result : results){
+                sum += (-result.getScore() + 1) / 2f;
+            }
+            return sum;
+        }
+
+        /**
+         * Renvoie le résultat global de la suite de parties, i.e. celui qui a cumulé le plus de pions à la fin des n parties
+         * @return -1 si le joueur 2 a gagné, 0 s'il y a eu nulle, 1 sinon
+         */
+        public int getGlobalResult(){
+            return Integer.compare(this.getTotalPlayer1Pawns(), this.getTotalPlayer2Pawns());
+        }
+
     }
 
 }

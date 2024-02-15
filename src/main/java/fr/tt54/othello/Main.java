@@ -10,6 +10,7 @@ import fr.ttgraphiclib.graphics.GraphicPanel;
 import fr.ttgraphiclib.graphics.events.listener.UserListener;
 import fr.ttgraphiclib.thread.Frame;
 
+import javax.annotation.processing.SupportedSourceVersion;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Random;
@@ -33,7 +34,7 @@ public class Main extends UserListener {
         //playRandomGames();
 
         //Bot.confrontBots(new OpeningTestBot(true), new OpeningTestBot(false), 8, 60 * 1000, true);
-        System.out.println(Arrays.toString(Bot.confrontBots(new AdvancedPatternEvalBot(true), new TableEvalBot(false), 2, 30 * 1000, true)));
+        //System.out.println(Arrays.toString(Bot.confrontBots(new AdvancedPatternEvalBot(true), new TableEvalBot(false), 2, 30 * 1000, true)));
 
         //System.out.println(Arrays.toString(Bot.confrontBots(new RandomBot(true), new OpeningTestBot(false), 100, 30 * 1000, true)));
 
