@@ -20,6 +20,9 @@ public abstract class Bot {
 
     private int botNumber;
 
+    public int depthSearch = -1; // Profondeur de recherche de l'algorithme alpha-beta. Si la profondeur vaut -1, le programme
+    // joue en fonction du temps à sa disposition
+
     public Bot(boolean white){
         this.white = white;
     }

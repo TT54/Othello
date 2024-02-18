@@ -1,6 +1,7 @@
 package fr.tt54.othello.bots;
 
 import fr.tt54.othello.bots.utils.Evaluation;
+import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.game.OthelloGame;
 
@@ -17,7 +18,12 @@ public class TableEvalBot extends Bot {
         long timeToPlay = (timeLeft == -1) ? Long.MAX_VALUE : (movesToPlayLeft == 0) ? timeLeft : timeLeft / movesToPlayLeft;
 
         if (!this.tryOpeningMove(game)) {
-            iterativeSearch(game, timeToPlay, 0, 0, Evaluation::tableEval);
+            if(this.depthSearch < 0) {
+                iterativeSearch(game, timeToPlay, 0, 0, Evaluation::tableEval);
+            } else {
+                MoveEvaluation result = alphaBeta(game.clone(), this.depthSearch, Integer.MIN_VALUE, Integer.MAX_VALUE, Evaluation::tableEval);
+                game.playMove(result.getMoveChain().getPosition());
+            }
         }
 
         return true;
@@ -25,6 +31,8 @@ public class TableEvalBot extends Bot {
 
     @Override
     public Bot copy() {
-        return new TableEvalBot(isWhite());
+        TableEvalBot copy = new TableEvalBot(isWhite());
+        copy.depthSearch = this.depthSearch;
+        return copy;
     }
 }

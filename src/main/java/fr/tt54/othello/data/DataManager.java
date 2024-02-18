@@ -1,6 +1,7 @@
 package fr.tt54.othello.data;
 
-import fr.tt54.othello.bots.AdvancedPatternEvalBot;
+import fr.tt54.othello.bots.Bot;
+import fr.tt54.othello.bots.TableEvalBot;
 import fr.tt54.othello.data.complexity.AlphaBetaComplexityLoader;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
@@ -26,10 +27,16 @@ public class DataManager {
 
         //GeneticAlgorithm.launch();
 
-        GeneticAlgorithm.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT,
-                new AdvancedPatternEvalBot[] {new AdvancedPatternEvalBot(false)},
+/*        GeneticAlgorithm.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT,
+                new Bot[] {new AdvancedPatternEvalBot(false)},
                 new int[] {7},
                 new int[] {400},
+                12);*/
+
+        GeneticAlgorithm.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT,
+                new Bot[] {new TableEvalBot(false)},
+                new int[] {1, 2, 3},
+                new int[] {400, 400, 400},
                 12);
     }
 

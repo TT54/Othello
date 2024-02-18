@@ -10,9 +10,6 @@ import java.util.Arrays;
 public class AdvancedPatternEvalBot extends Bot{
 
 
-    public int depthSearch = -1; // Profondeur de recherche de l'algorithme alpha-beta. Si la profondeur vaut -1, le programme
-    // joue en fonction du temps à sa disposition
-
     public final float[] patternCoeffs;
     public float freedomCoeff;
 

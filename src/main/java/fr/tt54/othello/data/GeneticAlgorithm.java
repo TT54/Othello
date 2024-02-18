@@ -43,7 +43,7 @@ public class GeneticAlgorithm {
         nextGeneration();
     }
 
-    public static void evaluateBot(AdvancedPatternEvalBot bot, AdvancedPatternEvalBot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth){
+    public static void evaluateBot(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth){
         int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
         int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
         int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
@@ -89,17 +89,17 @@ public class GeneticAlgorithm {
         }
     }
 
+
+
     static int currentDepth = 0;
     static int gamesPlayedAtCurrentDepth = 0;
     static int currentAdversary = 0;
 
-    public static void evaluateBotAsync(AdvancedPatternEvalBot bot, AdvancedPatternEvalBot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth, int threadAmount){
+    public static void evaluateBotAsync(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth, int threadAmount){
         int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
         int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
         int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
         float[][] depthConfrontationResults = new float[adversaries.length][evaluationDepths.length]; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
-
-
 
         for(int i = 0; i < threadAmount; i++){
             Thread thread = new Thread(){
@@ -116,7 +116,9 @@ public class GeneticAlgorithm {
                             gamesPlayedAtCurrentDepth = 0;
                             currentDepth++;
 
-                            System.out.println("#### DEPTH " + evaluationDepths[currentDepth] + " ####");
+                            if(currentDepth < evaluationDepths.length) {
+                                System.out.println("#### DEPTH " + evaluationDepths[currentDepth] + " ####");
+                            }
                         }
 
                         if (currentDepth >= evaluationDepths.length) {
@@ -335,7 +337,9 @@ public class GeneticAlgorithm {
                         beginingPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
                     }
 
-                    Bot.GameResults results = launchEvaluationGame(individu.bot, new AdvancedPatternEvalBot(false, depth), beginingPosition);
+                    AdvancedPatternEvalBot adversaryBot = new AdvancedPatternEvalBot(false, depth);
+
+                    Bot.GameResults results = launchEvaluationGame(individu.bot, adversaryBot, beginingPosition);
                     eval += (results.getGlobalResult() + 1) / 2f;
                 }
             }

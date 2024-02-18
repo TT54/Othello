@@ -1,7 +1,7 @@
 package fr.tt54.othello;
 
 import fr.tt54.othello.bots.Bot;
-import fr.tt54.othello.bots.RandomBot;
+import fr.tt54.othello.bots.TableEvalBot;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.GeneticAlgorithm;
 import fr.tt54.othello.game.OthelloGraphicManager;
@@ -50,7 +50,11 @@ public class Main extends UserListener {
 
 
 
-        System.out.println(Arrays.toString(Bot.confrontBots(GeneticAlgorithm.FIRST_ATTEMPT_BOT.copy(), new RandomBot(true), 100, 2 * 1000, true).getScore()));
+        Bot bot = GeneticAlgorithm.FIRST_ATTEMPT_BOT.copy();
+        Bot adversary = new TableEvalBot(false);
+        bot.depthSearch = 7;
+        adversary.depthSearch = 7;
+        System.out.println(Arrays.toString(Bot.confrontBots(bot, adversary, 2, 2 * 1000, true).getScore()));
 
         //System.out.println(Arrays.toString(Bot.confrontBots(new RandomBot(true), new OpeningTestBot(false), 100, 30 * 1000, true)));
 
