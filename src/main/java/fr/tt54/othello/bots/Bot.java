@@ -8,8 +8,6 @@ import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.openings.OpeningTree;
 import fr.tt54.othello.game.OthelloGame;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 public abstract class Bot {
@@ -316,6 +314,10 @@ public abstract class Bot {
 
     public record GameResult(int player1Score, int player2Score){
 
+        /**
+         *
+         * @return -1 si le joueur 2 a gagné, 0 s'il y a eu nulle, 1 sinon
+         */
         public int getScore(){
             return Integer.compare(player1Score, player2Score);
         }
@@ -324,6 +326,10 @@ public abstract class Bot {
 
     public record GameResults(GameResult[] results){
 
+        /**
+         *
+         * @return La somme du nombre de pions qu'il restait au joueur 1 à la fin de chaque partie
+         */
         public int getTotalPlayer1Pawns(){
             int sum = 0;
             for(GameResult result : results){
@@ -332,6 +338,10 @@ public abstract class Bot {
             return sum;
         }
 
+        /**
+         *
+         * @return La somme du nombre de pions qu'il restait au joueur 2 à la fin de chaque partie
+         */
         public int getTotalPlayer2Pawns(){
             int sum = 0;
             for(GameResult result : results){
@@ -340,7 +350,11 @@ public abstract class Bot {
             return sum;
         }
 
-        public float getPlayer1Score(){
+        /**
+         *
+         * @return La somme des résultats des parties du joueur 1. Chaque partie vaut +1 en cas de victoire, +1/2 en cas de nulle, 0 en cas de défaite
+         */
+        public float getPlayer1Result(){
             float sum = 0;
             for(GameResult result : results){
                 sum += (result.getScore() + 1) / 2f;
@@ -348,12 +362,41 @@ public abstract class Bot {
             return sum;
         }
 
-        public float getPlayer2Score(){
+        /**
+         *
+         * @return La somme des résultats des parties du joueur 2. Chaque partie vaut +1 en cas de victoire, +1/2 en cas de nulle, 0 en cas de défaite
+         */
+        public float getPlayer2Result(){
             float sum = 0;
             for(GameResult result : results){
                 sum += (-result.getScore() + 1) / 2f;
             }
             return sum;
+        }
+
+        /**
+         *
+         * @return un tableau contenant [victoires bot1, nulles, défaites bot1]
+         */
+        public int[] getScore(){
+            int[] score = new int[3];
+            for(GameResult result : results){
+                if(result.getScore() == 1){
+                    score[0]++;
+                } else if(result.getScore() == 0){
+                    score[1]++;
+                } else {
+                    score[2]++;
+                }
+            }
+            return score;
+        }
+
+        @Override
+        public String toString() {
+            return "GameResults{" +
+                    "results=" + Arrays.toString(this.getScore()) +
+                    '}';
         }
 
         /**
