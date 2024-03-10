@@ -20,12 +20,12 @@ public class GeneticAlgorithm {
 
     public static final AdvancedPatternEvalBot FIRST_ATTEMPT_BOT = new AdvancedPatternEvalBot(true, new float[] {5.585513f, 4.4577804f, 2.6828187f, 4.4562306f, 7.4148116f, 4.2731333f, 4.333627f, 1.5871282f, 8.166409f}, 0.05614471f);
 
-    public static final float mutationProba = 0.15f;
-    public static final float crossOverProba = 0.60f;
+    public static final float mutationProba = 0.25f;
+    public static final float crossOverProba = 0.70f;
 
     public static final int EVALUATION_AMOUNT_OF_GAMES = 4;
     public static final int[] EVALUATION_DEPTH = new int[] {1, 2, 3};
-    public static final int POPULATION = 150;
+    public static final int POPULATION = 200;
 
 
     private static Individu[] individus = new Individu[POPULATION];
@@ -41,6 +41,20 @@ public class GeneticAlgorithm {
         evaluatePopulation();
         selectNextGen();
         nextGeneration();
+    }
+
+    public static void asynchLaunch(int threadAmount){
+        for(int i = 0; i < POPULATION; i++){
+            individus[i] = Individu.generateRandomly();
+        }
+
+        generation = 0;
+
+        evaluatePopulation();
+        saveCurrentGeneration();
+
+        selectNextGen();
+        asyncNextGeneration(threadAmount);
     }
 
     public static void evaluateBot(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth){
@@ -168,6 +182,72 @@ public class GeneticAlgorithm {
         }
     }
 
+    static int currentCrossOver = 0;
+    static int finishedCrossOverAmount = 0;
+    private static void asyncNextGeneration(int threadAmount){
+        currentCrossOver = 0;
+        finishedCrossOverAmount = 0;
+        generation++;
+
+        System.out.println("##### Generation " + generation + " #####");
+
+        for(int i = 0; i < threadAmount; i++){
+            Thread thread = new Thread(){
+                @Override
+                public void run() {
+                    while(!this.isInterrupted()){
+                        if(currentCrossOver <= ((int) (crossOverProba * POPULATION)) / 2){
+                            int threadCrossOver = currentCrossOver;
+                            currentCrossOver++;
+
+                            int parent1 = random.nextInt(POPULATION);
+                            int parent2 = random.nextInt(POPULATION);
+                            while (parent2 == parent1){
+                                parent2 = random.nextInt(POPULATION);
+                            }
+
+                            Individu[] children = Individu.generateCrossOver(individus[parent1], individus[parent2]);
+
+                            Individu[] competitors = new Individu[] {individus[parent1], individus[parent2], children[0], children[1]};
+
+                            for(int j = 0; j < competitors.length; j++){
+                                Individu.evalFitness(competitors[j]);
+                            }
+
+                            Individu[] bests = Individu.getTwoBests(competitors);
+                            individus[parent1] = bests[0];
+                            individus[parent2] = bests[1];
+
+                            System.out.println("Crossover " + threadCrossOver + " terminé");
+
+                            finishedCrossOverAmount++;
+                        } else {
+                            this.interrupt();
+                            if(finishedCrossOverAmount == ((int) (crossOverProba * POPULATION)) / 2){
+
+                            } else if(finishedCrossOverAmount > ((int) (crossOverProba * POPULATION)) / 2){
+                                System.out.println("problème : " + finishedCrossOverAmount);
+                            }
+                        }
+                    }
+                }
+            };
+            thread.start();
+        }
+
+        while(finishedCrossOverAmount <= ((int) (crossOverProba * POPULATION)) / 2){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        saveCurrentGeneration();
+        selectNextGen();
+        asyncNextGeneration(threadAmount);
+    }
+
     private static void nextGeneration(){
         generation++;
 
@@ -214,6 +294,8 @@ public class GeneticAlgorithm {
         json.put("individus", individusArray);
         json.put("best_individu", bests[0].saveIndividu());
         json.put("second_individu", bests[1].saveIndividu());
+
+        System.out.println("Meilleure fitness : " + bests[0].fitness);
 
         try (FileWriter file = new FileWriter("generation-" + generation + ".json")) {
             file.write(json.toJSONString());
@@ -285,7 +367,7 @@ public class GeneticAlgorithm {
             for (int i = 0; i < patternsCoeffs.length; i++) {
                 patternsCoeffs[i] = getRandomValue();
             }
-            return new Individu(new AdvancedPatternEvalBot(true, patternsCoeffs, getRandomValue()), 0.5f);
+            return new Individu(new AdvancedPatternEvalBot(true, patternsCoeffs, getRandomValue()), 0f);
         }
 
         public static Individu[] generateCrossOver(Individu individu1, Individu individu2) {
@@ -337,7 +419,10 @@ public class GeneticAlgorithm {
                         beginingPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
                     }
 
-                    AdvancedPatternEvalBot adversaryBot = new AdvancedPatternEvalBot(false, depth);
+                    //AdvancedPatternEvalBot adversaryBot = new AdvancedPatternEvalBot(false, depth);
+                    AdvancedPatternEvalBot adversaryBot = (AdvancedPatternEvalBot) FIRST_ATTEMPT_BOT.copy();
+                    adversaryBot.depthSearch = depth;
+                    adversaryBot.setWhite(false);
 
                     Bot.GameResults results = launchEvaluationGame(individu.bot, adversaryBot, beginingPosition);
                     eval += (results.getGlobalResult() + 1) / 2f;

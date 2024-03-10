@@ -11,9 +11,9 @@ import java.io.IOException;
 
 public class FitnessCSVGenerator {
 
-    public static final String geneticResultFolder = "D:\\Theo\\Programmation\\Othello\\genetic\\launch-4";
+    public static final String geneticResultFolder = "D:\\Theo\\Programmation\\Othello\\genetic\\launch-6";
     public static final String csvFolder = "D:\\Theo\\Programmation\\Othello\\genetic";
-    public static final String csvFileName = "launch-4";
+    public static final String csvFileName = "launch-6";
 
     public static void main(String[] args) {
         JSONParser jsonParser = new JSONParser();
@@ -30,7 +30,7 @@ public class FitnessCSVGenerator {
                 double fitness = (double) best.get("fitness");
 
                 System.out.println(file.getName());
-                fitnessArray[Integer.parseInt(file.getName().split("-")[1].split("\\.")[0]) - 1] = fitness;
+                fitnessArray[Integer.parseInt(file.getName().split("-")[1].split("\\.")[0])] = fitness;
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
