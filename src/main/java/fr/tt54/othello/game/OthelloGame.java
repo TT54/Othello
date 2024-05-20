@@ -1,10 +1,10 @@
 package fr.tt54.othello.game;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class OthelloGame {
+
+    private static final Random random = new Random();
 
     private final byte[][] board;           // Le plateau
     private boolean whiteToPlay = false;    // true si c'est aux blancs de jouer, false si c'est aux noirs
@@ -252,6 +252,11 @@ public class OthelloGame {
         return this.whiteToPlay;
     }
 
+    @Deprecated
+    public void setWhiteToPlay(boolean whiteToPlay){
+        this.whiteToPlay = whiteToPlay;
+    }
+
     public int getMoveCount() {
         return move;
     }
@@ -316,5 +321,17 @@ public class OthelloGame {
     public static String intToStringPosition(int position) {
         int[] pos = intToPosition(position);
         return positionToStringPosition(pos[0], pos[1]);
+    }
+
+    public static OthelloGame generateRandomPos(int amountOfPlayedMoves) {
+        OthelloGame game = new OthelloGame();
+        for(int i = 0; i < amountOfPlayedMoves; i++){
+            List<Integer> placements = new ArrayList<>(game.getAvailablePlacements());
+            if(placements.size() == 0){
+                return generateRandomPos(amountOfPlayedMoves);
+            }
+            game.playMove(placements.get(random.nextInt(placements.size())));
+        }
+        return game;
     }
 }

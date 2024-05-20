@@ -1,4 +1,4 @@
-package fr.tt54.othello.data;
+package fr.tt54.othello.data.genetic;
 
 import fr.tt54.othello.bots.AdvancedPatternEvalBot;
 import fr.tt54.othello.bots.Bot;
@@ -19,20 +19,24 @@ public class GeneticAlgorithm {
     public static Random random = new Random();
 
     public static final AdvancedPatternEvalBot FIRST_ATTEMPT_BOT = new AdvancedPatternEvalBot(true, new float[] {5.585513f, 4.4577804f, 2.6828187f, 4.4562306f, 7.4148116f, 4.2731333f, 4.333627f, 1.5871282f, 8.166409f}, 0.05614471f);
+    public static final AdvancedPatternEvalBot SECOND_ATTEMPT_BOT = new AdvancedPatternEvalBot(true, new float[] {5.249243f, 3.4480486f, 2.6761231f, 2.7054176f, 9.367574f, 4.3268347f, 3.9276142f, 2.708558f, 6.8990593f}, 0.08751938f);
 
-    public static final float mutationProba = 0.25f;
+/*    public static final float mutationProba = 0.25f;
     public static final float crossOverProba = 0.70f;
 
     public static final int EVALUATION_AMOUNT_OF_GAMES = 4;
     public static final int[] EVALUATION_DEPTH = new int[] {1, 2, 3};
-    public static final int POPULATION = 200;
+    public static final int POPULATION = 200;*/
 
 
-    private static Individu[] individus = new Individu[POPULATION];
+    private static Individu[] individus;
     private static int generation;
+    private static GeneticParameters geneticParameters;
 
-    public static void launch(){
-        for(int i = 0; i < POPULATION; i++){
+    public static void launch(GeneticParameters parameters){
+        geneticParameters = parameters;
+        individus = new Individu[parameters.population()];
+        for(int i = 0; i < parameters.population(); i++){
             individus[i] = Individu.generateRandomly();
         }
 
@@ -43,8 +47,10 @@ public class GeneticAlgorithm {
         nextGeneration();
     }
 
-    public static void asynchLaunch(int threadAmount){
-        for(int i = 0; i < POPULATION; i++){
+    public static void asyncLaunch(GeneticParameters parameters, int threadAmount){
+        geneticParameters = parameters;
+        individus = new Individu[parameters.population()];
+        for(int i = 0; i < parameters.population(); i++){
             individus[i] = Individu.generateRandomly();
         }
 
@@ -57,130 +63,7 @@ public class GeneticAlgorithm {
         asyncNextGeneration(threadAmount);
     }
 
-    public static void evaluateBot(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth){
-        int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
-        int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
-        int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
-        float[][] depthConfrontationResults = new float[adversaries.length][evaluationDepths.length]; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
 
-        for (int i = 0; i < evaluationDepths.length; i++) {
-            int depth = evaluationDepths[i];
-            bot.depthSearch = depth;
-
-            System.out.println("#### DEPTH " + depth + " ####");
-
-            for(int k = 0; k < gamesAmountPerDepth[i]; k++) {
-                System.out.println("#### Game " + (k+1) + "/" + gamesAmountPerDepth[i] +" ####");
-
-                OthelloGame beginningPosition = new OthelloGame();
-
-                for (int j = 1; j <= random.nextInt(11); j++) {
-                    List<Integer> availableMoves = new ArrayList<>(beginningPosition.getAvailablePlacements());
-                    beginningPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
-                }
-
-                for (int j = 0; j < adversaries.length; j++) {
-                    adversaries[j].depthSearch = depth;
-                    Bot.GameResults results = Individu.launchEvaluationGame(bot.copy(), adversaries[j].copy(), beginningPosition);
-
-                    depthBotVictories[j][i] += results.getScore()[0];
-                    depthBotDraw[j][i] += results.getScore()[1];
-                    depthBotLooses[j][i] += results.getScore()[2];
-                    depthConfrontationResults[j][i] += (results.getGlobalResult() + 1f) / 2;
-                }
-            }
-        }
-
-        System.out.println("");
-
-        for(int i = 0; i < depthBotVictories.length; i++){
-            System.out.println("Bot VS Adversaire " + i);
-            System.out.println("Victoires : " + Arrays.toString(depthBotVictories[i]));
-            System.out.println("Nulles : " + Arrays.toString(depthBotDraw[i]));
-            System.out.println("Défaites : " + Arrays.toString(depthBotLooses[i]));
-            System.out.println("Score total des confrontations : " + Arrays.toString(depthConfrontationResults[i]));
-            System.out.println(" ------ ");
-        }
-    }
-
-
-
-    static int currentDepth = 0;
-    static int gamesPlayedAtCurrentDepth = 0;
-    static int currentAdversary = 0;
-
-    public static void evaluateBotAsync(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth, int threadAmount){
-        int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
-        int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
-        int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
-        float[][] depthConfrontationResults = new float[adversaries.length][evaluationDepths.length]; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
-
-        for(int i = 0; i < threadAmount; i++){
-            Thread thread = new Thread(){
-
-                private int threadDepth = 0;
-                private int threadAdversary = 0;
-
-                @Override
-                public void run() {
-                    while(!this.isInterrupted()) {
-                        gamesPlayedAtCurrentDepth++;
-
-                        if (gamesPlayedAtCurrentDepth >= gamesAmountPerDepth[threadDepth]) {
-                            gamesPlayedAtCurrentDepth = 0;
-                            currentDepth++;
-
-                            if(currentDepth < evaluationDepths.length) {
-                                System.out.println("#### DEPTH " + evaluationDepths[currentDepth] + " ####");
-                            }
-                        }
-
-                        if (currentDepth >= evaluationDepths.length) {
-                            currentAdversary++;
-                            currentDepth = 0;
-                        }
-
-                        if (currentAdversary >= adversaries.length) {
-                            System.out.println("");
-
-                            for (int i = 0; i < depthBotVictories.length; i++) {
-                                System.out.println("Bot VS Adversaire " + i);
-                                System.out.println("Victoires : " + Arrays.toString(depthBotVictories[i]));
-                                System.out.println("Nulles : " + Arrays.toString(depthBotDraw[i]));
-                                System.out.println("Défaites : " + Arrays.toString(depthBotLooses[i]));
-                                System.out.println("Score total des confrontations : " + Arrays.toString(depthConfrontationResults[i]));
-                                System.out.println(" ------ ");
-                            }
-
-                            interrupt();
-                            return;
-                        }
-
-                        this.threadAdversary = currentAdversary;
-                        this.threadDepth = currentDepth;
-
-                        int depth = evaluationDepths[threadDepth];
-
-                        OthelloGame beginningPosition = new OthelloGame();
-                        for (int j = 1; j <= random.nextInt(11); j++) {
-                            List<Integer> availableMoves = new ArrayList<>(beginningPosition.getAvailablePlacements());
-                            beginningPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
-                        }
-
-                        adversaries[threadAdversary].depthSearch = depth;
-                        bot.depthSearch = depth;
-                        Bot.GameResults results = Individu.launchEvaluationGame(bot.copy(), adversaries[threadAdversary].copy(), beginningPosition);
-
-                        depthBotVictories[threadAdversary][threadDepth] += results.getScore()[0];
-                        depthBotDraw[threadAdversary][threadDepth] += results.getScore()[1];
-                        depthBotLooses[threadAdversary][threadDepth] += results.getScore()[2];
-                        depthConfrontationResults[threadAdversary][threadDepth] += (results.getGlobalResult() + 1f) / 2;
-                    }
-                }
-            };
-            thread.start();
-        }
-    }
 
     static int currentCrossOver = 0;
     static int finishedCrossOverAmount = 0;
@@ -196,14 +79,14 @@ public class GeneticAlgorithm {
                 @Override
                 public void run() {
                     while(!this.isInterrupted()){
-                        if(currentCrossOver <= ((int) (crossOverProba * POPULATION)) / 2){
+                        if(currentCrossOver <= ((int) (geneticParameters.crossOverProba() * geneticParameters.population())) / 2){
                             int threadCrossOver = currentCrossOver;
                             currentCrossOver++;
 
-                            int parent1 = random.nextInt(POPULATION);
-                            int parent2 = random.nextInt(POPULATION);
+                            int parent1 = random.nextInt(geneticParameters.population());
+                            int parent2 = random.nextInt(geneticParameters.population());
                             while (parent2 == parent1){
-                                parent2 = random.nextInt(POPULATION);
+                                parent2 = random.nextInt(geneticParameters.population());
                             }
 
                             Individu[] children = Individu.generateCrossOver(individus[parent1], individus[parent2]);
@@ -223,9 +106,9 @@ public class GeneticAlgorithm {
                             finishedCrossOverAmount++;
                         } else {
                             this.interrupt();
-                            if(finishedCrossOverAmount == ((int) (crossOverProba * POPULATION)) / 2){
+                            if(finishedCrossOverAmount == ((int) (geneticParameters.crossOverProba() * geneticParameters.population())) / 2){
 
-                            } else if(finishedCrossOverAmount > ((int) (crossOverProba * POPULATION)) / 2){
+                            } else if(finishedCrossOverAmount > ((int) (geneticParameters.crossOverProba() * geneticParameters.population())) / 2){
                                 System.out.println("problème : " + finishedCrossOverAmount);
                             }
                         }
@@ -235,7 +118,7 @@ public class GeneticAlgorithm {
             thread.start();
         }
 
-        while(finishedCrossOverAmount <= ((int) (crossOverProba * POPULATION)) / 2){
+        while(finishedCrossOverAmount <= ((int) (geneticParameters.crossOverProba() * geneticParameters.population())) / 2){
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -253,21 +136,24 @@ public class GeneticAlgorithm {
 
         System.out.println("##### Generation " + generation + " #####");
 
-        for(int i = 0; i < ((int) (crossOverProba * POPULATION)) / 2; i++){
-            int parent1 = random.nextInt(POPULATION);
-            int parent2 = random.nextInt(POPULATION);
-            while (parent2 == parent1){
-                parent2 = random.nextInt(POPULATION);
-            }
+        // On réalise les cross overs
+        for(int i = 0; i < ((int) (geneticParameters.crossOverProba() * geneticParameters.population())) / 2; i++){
 
+            // Sélection des parents
+            int parent1 = random.nextInt(geneticParameters.population());
+            int parent2 = random.nextInt(geneticParameters.population());
+            while (parent2 == parent1){
+                parent2 = random.nextInt(geneticParameters.population());
+            }
             Individu[] children = Individu.generateCrossOver(individus[parent1], individus[parent2]);
 
+            // On évalue les enfants et les parents
             Individu[] competitors = new Individu[] {individus[parent1], individus[parent2], children[0], children[1]};
-
             for(int j = 0; j < competitors.length; j++){
                 Individu.evalFitness(competitors[j]);
             }
 
+            // On récupère les deux meilleurs parmi les parents et les enfants
             Individu[] bests = Individu.getTwoBests(competitors);
             individus[parent1] = bests[0];
             individus[parent2] = bests[1];
@@ -306,23 +192,23 @@ public class GeneticAlgorithm {
     }
 
     private static void evaluatePopulation(){
-        for(int i = 0; i < POPULATION; i++){
+        for(int i = 0; i < geneticParameters.population(); i++){
             Individu.evalFitness(individus[i]);
         }
     }
 
     private static void selectNextGen(){
         float totalFitness = 0;
-        for(int i = 0; i < POPULATION; i++){
+        for(int i = 0; i < geneticParameters.population(); i++){
             totalFitness += individus[i].fitness;
         }
 
-        Individu[] nextPop = new Individu[POPULATION];
-        for(int i = 0; i < POPULATION; i++){
+        Individu[] nextPop = new Individu[geneticParameters.population()];
+        for(int i = 0; i < geneticParameters.population(); i++){
             float selected = random.nextFloat() * totalFitness;
 
             float score = 0;
-            for(int j = 0; j < POPULATION; j++){
+            for(int j = 0; j < geneticParameters.population(); j++){
                 score += individus[j].fitness;
                 if(score >= selected){
                     nextPop[i] = individus[j];
@@ -397,7 +283,7 @@ public class GeneticAlgorithm {
 
         private static void mutate(Individu individu) {
             int length = individu.bot.patternCoeffs.length;
-            while (random.nextFloat() < mutationProba) {
+            while (random.nextFloat() < geneticParameters.mutationProba()) {
                 int i = random.nextInt(length + 1);
                 if (i == length) {
                     individu.bot.freedomCoeff = getRandomValue();
@@ -409,8 +295,8 @@ public class GeneticAlgorithm {
 
         public static void evalFitness(Individu individu) {
             float eval = 0;
-            for (int i = 0; i < EVALUATION_AMOUNT_OF_GAMES; i++) {
-                for (int depth : EVALUATION_DEPTH) {
+            for (int i = 0; i < geneticParameters.evaluationGamesAmount(); i++) {
+                for (int depth : geneticParameters.evaluationDepth()) {
                     individu.bot.depthSearch = depth;
                     OthelloGame beginingPosition = new OthelloGame();
 
@@ -428,7 +314,7 @@ public class GeneticAlgorithm {
                     eval += (results.getGlobalResult() + 1) / 2f;
                 }
             }
-            individu.fitness = (individu.fitness + eval / (EVALUATION_AMOUNT_OF_GAMES * EVALUATION_DEPTH.length)) / 2;
+            individu.fitness = (individu.fitness + eval / (geneticParameters.evaluationGamesAmount() * geneticParameters.evaluationDepth().length)) / 2;
         }
 
         private static float getRandomValue() {
@@ -454,15 +340,14 @@ public class GeneticAlgorithm {
         }
 
 
-        private static Bot.GameResults launchEvaluationGame(Bot bot1, Bot bot2, OthelloGame beginingPosition){
-            int[] score = new int[3];
+        public static Bot.GameResults launchEvaluationGame(Bot bot1, Bot bot2, OthelloGame beginningPosition){
             int amount = 2;
             Bot.GameResult[] results = new Bot.GameResult[amount];
 
             boolean bot1Color = bot1.isWhite(); // true si bot1 est blanc, false s'il est noir
 
             for(int i = 0; i < amount; i++){
-                OthelloGame game = beginingPosition.clone();
+                OthelloGame game = beginningPosition.clone();
 
                 bot1.setWhite(bot1Color);
                 bot2.setWhite(!bot1Color);

@@ -25,17 +25,43 @@ public class DataManager {
 
         //GeneticAlgorithm.asynchLaunch(8);
 
-/*        GeneticAlgorithm.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT,
-                new Bot[] {new AdvancedPatternEvalBot(false)},
-                new int[] {7},
-                new int[] {400},
-                12);*/
+        /*GeneticAlgorithm.Individu individu = GeneticAnalysis.getBestIndividuFromGeneticResults(
+                "D:\\Theo\\Programmation\\Othello\\genetic\\launch-6",
+                GeneticAlgorithm.FIRST_ATTEMPT_BOT,
+                new int[] {1, 2, 3, 4},
+                new int[] {10, 10, 10, 10});
+        System.out.println(individu.saveIndividu().toJSONString());*/
 
-        /*GeneticAlgorithm.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT,
-                new Bot[] {new TableEvalBot(false)},
+        /*Bot.evaluateBotAsync(GeneticAlgorithm.SECOND_ATTEMPT_BOT,
+                new Bot[] {GeneticAlgorithm.FIRST_ATTEMPT_BOT},
                 new int[] {1, 2, 3, 4, 5},
-                new int[] {400, 400, 400, 400, 400},
-                12);*/
+                new int[] {500, 500, 500, 500, 500},
+                10, true);*/
+
+/*        Bot.evaluateBotAsync(GeneticAlgorithm.SECOND_ATTEMPT_BOT,
+                new Bot[] {GeneticAlgorithm.FIRST_ATTEMPT_BOT},
+                new int[] {6, 7},
+                new int[] {400, 400},
+                10, true);*/
+
+/*        MultiProbCutAnalysis.formatDatas(
+                new int[] {1, 2, 3, 4, 5, 6, 7, 8},
+                100,
+                15,
+                16,
+                "D:\\Theo\\Programmation\\Othello\\mpc",
+                "eval_1_1716200314749",
+                "format_2"
+                );*/
+
+        MultiProbCutAnalysis.getEvaluationComparisonAsync(
+                new int[] {1, 2, 3, 4, 5, 6, 7, 8},
+                100,
+                15,
+                60,
+                "D:\\Theo\\Programmation\\Othello\\mpc",
+                "eval_" + System.currentTimeMillis(),
+                10);
     }
 
 

@@ -3,7 +3,7 @@ package fr.tt54.othello;
 import fr.tt54.othello.bots.Bot;
 import fr.tt54.othello.bots.TableEvalBot;
 import fr.tt54.othello.data.DataManager;
-import fr.tt54.othello.data.GeneticAlgorithm;
+import fr.tt54.othello.data.genetic.GeneticAlgorithm;
 import fr.tt54.othello.game.OthelloGraphicManager;
 import fr.ttgraphiclib.GraphicManager;
 import fr.ttgraphiclib.graphics.GraphicPanel;

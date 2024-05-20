@@ -69,7 +69,7 @@ public class AdvancedPatternEvalBot extends Bot{
         return bot;
     }
 
-    private double advancedEvaluation(OthelloGame game){
+    public double advancedEvaluation(OthelloGame game){
         if(game.isGameFinished()){
             if(game.getWhitePiecesCount() > game.getBlackPiecesCount()){
                 return 500 + game.getWhitePiecesCount() - game.getBlackPiecesCount();
@@ -90,9 +90,8 @@ public class AdvancedPatternEvalBot extends Bot{
             i++;
         }
 
-
         if(!game.isWhiteToPlay()){
-            return value * -1;
+            value = value * -1;
         }
 
         // On ajoute l'évaluation via le tableau après car elle est déjà du bon signe (négative si avantage noir, positive si avantage blanc)

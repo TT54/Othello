@@ -5,6 +5,7 @@ import fr.tt54.othello.bots.utils.EvaluationFunction;
 import fr.tt54.othello.bots.utils.MoveChain;
 import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
+import fr.tt54.othello.data.genetic.GeneticAlgorithm;
 import fr.tt54.othello.data.openings.OpeningTree;
 import fr.tt54.othello.game.OthelloGame;
 
@@ -315,6 +316,164 @@ public abstract class Bot {
         return new GameResults(results);
     }
 
+    public static BotEvaluationResult evaluateBot(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth){
+        int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
+        int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
+        int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
+        float[][] depthConfrontationResults = new float[adversaries.length][evaluationDepths.length]; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
+
+        for (int i = 0; i < evaluationDepths.length; i++) {
+            int depth = evaluationDepths[i];
+            bot.depthSearch = depth;
+
+            System.out.println("#### DEPTH " + depth + " ####");
+
+            for(int k = 0; k < gamesAmountPerDepth[i]; k++) {
+                System.out.println("#### Game " + (k+1) + "/" + gamesAmountPerDepth[i] +" ####");
+
+                OthelloGame beginningPosition = new OthelloGame();
+
+                // On génère une position aléatoire à partir de laquelle évaluer les différents programmes
+                for (int j = 1; j <= random.nextInt(11); j++) {
+                    List<Integer> availableMoves = new ArrayList<>(beginningPosition.getAvailablePlacements());
+                    beginningPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
+                }
+
+                // Chaque programme affronte le programme de référence 'bot'
+                for (int j = 0; j < adversaries.length; j++) {
+                    adversaries[j].depthSearch = depth;
+                    Bot.GameResults results = GeneticAlgorithm.Individu.launchEvaluationGame(bot.copy(), adversaries[j].copy(), beginningPosition);
+
+                    // On enregistre les résultats
+                    depthBotVictories[j][i] += results.getScore()[0];
+                    depthBotDraw[j][i] += results.getScore()[1];
+                    depthBotLooses[j][i] += results.getScore()[2];
+                    depthConfrontationResults[j][i] += (results.getGlobalResult() + 1f) / 2;
+                }
+            }
+        }
+
+        System.out.println("");
+
+        for(int i = 0; i < depthBotVictories.length; i++){
+            System.out.println("Bot VS Adversaire " + i);
+            System.out.println("Victoires : " + Arrays.toString(depthBotVictories[i]));
+            System.out.println("Nulles : " + Arrays.toString(depthBotDraw[i]));
+            System.out.println("Défaites : " + Arrays.toString(depthBotLooses[i]));
+            System.out.println("Score total des confrontations : " + Arrays.toString(depthConfrontationResults[i]));
+            System.out.println(" ------ ");
+        }
+
+        return new BotEvaluationResult(true, depthBotVictories, depthBotDraw, depthBotLooses, depthConfrontationResults);
+    }
+
+
+    static int currentDepth = 0; // Profondeur à laquelle les programmes sont actuellement évalués
+    static int gamesPlayedAtCurrentDepth = 0; // Nombre de parties jouées à la profondeur actuelle
+    static int currentAdversary = 0; // Indice de l'adversaire qui est actuellement en train d'être affronté
+    static int finishedThreads = 0; // Nombre de threads ayant terminé leur travail
+
+    public static BotEvaluationResult evaluateBotAsync(Bot bot, Bot[] adversaries, int[] evaluationDepths, int[] gamesAmountPerDepth, int threadAmount, boolean showInformations){
+        int[][] depthBotVictories = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
+        int[][] depthBotDraw = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
+        int[][] depthBotLooses = new int[adversaries.length][evaluationDepths.length]; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
+        float[][] depthConfrontationResults = new float[adversaries.length][evaluationDepths.length]; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
+        BotEvaluationResult result = new BotEvaluationResult();
+
+        for(int i = 0; i < threadAmount; i++){
+            Thread thread = new Thread(){
+
+                private int threadDepth = 0; // Profondeur à laquelle doit évaluer le thread
+                private int threadAdversary = 0; // Adversaire contre lequel le thread évalue
+
+                @Override
+                public void run() {
+                    while(!this.isInterrupted()) {
+                        gamesPlayedAtCurrentDepth++;
+
+                        // On a joué toutes les parties requises à la profondeur donnée, on passe à la profondeur suivante
+                        if (gamesPlayedAtCurrentDepth >= gamesAmountPerDepth[threadDepth]) {
+                            gamesPlayedAtCurrentDepth = 0;
+                            currentDepth++;
+
+                            if(currentDepth < evaluationDepths.length) {
+                                System.out.println("#### DEPTH " + evaluationDepths[currentDepth] + " ####");
+                            }
+                        }
+
+                        // On a joué toutes les parties contre l'adversaire actuel, on passe à l'adversaire suivant
+                        if (currentDepth >= evaluationDepths.length) {
+                            currentAdversary++;
+                            currentDepth = 0;
+                        }
+
+                        // On a terminé d'évaluer le programme
+                        if (currentAdversary >= adversaries.length) {
+                            if(showInformations) {
+                                System.out.println("");
+
+                                for (int i = 0; i < depthBotVictories.length; i++) {
+                                    System.out.println("Bot VS Adversaire " + i);
+                                    System.out.println("Victoires : " + Arrays.toString(depthBotVictories[i]));
+                                    System.out.println("Nulles : " + Arrays.toString(depthBotDraw[i]));
+                                    System.out.println("Défaites : " + Arrays.toString(depthBotLooses[i]));
+                                    System.out.println("Score total des confrontations : " + Arrays.toString(depthConfrontationResults[i]));
+                                    System.out.println(" ------ ");
+                                }
+                            }
+
+                            finishedThreads++;
+                            if(finishedThreads == threadAmount){
+                                result.setDepthBotVictories(depthBotVictories);
+                                result.setDepthBotDraw(depthBotDraw);
+                                result.setDepthBotLooses(depthBotLooses);
+                                result.setDepthConfrontationResults(depthConfrontationResults);
+                                result.finishEvaluation();
+
+                                currentDepth = 0;
+                                gamesPlayedAtCurrentDepth = 0;
+                                currentAdversary = 0;
+                                finishedThreads = 0;
+                            }
+
+                            interrupt();
+                            return;
+                        }
+
+                        this.threadAdversary = currentAdversary;
+                        this.threadDepth = currentDepth;
+
+                        int depth = evaluationDepths[threadDepth];
+
+                        // On génère une position aléatoire à partir de laquelle évaluer les différents programmes
+                        OthelloGame beginningPosition = new OthelloGame();
+                        for (int j = 1; j <= random.nextInt(11); j++) {
+                            List<Integer> availableMoves = new ArrayList<>(beginningPosition.getAvailablePlacements());
+                            beginningPosition.playMove(availableMoves.get(random.nextInt(availableMoves.size())));
+                        }
+
+                        adversaries[threadAdversary].depthSearch = depth;
+                        bot.depthSearch = depth;
+                        Bot.GameResults results = GeneticAlgorithm.Individu.launchEvaluationGame(bot.copy(), adversaries[threadAdversary].copy(), beginningPosition);
+
+                        // On enregistre les résultats
+                        depthBotVictories[threadAdversary][threadDepth] += results.getScore()[0];
+                        depthBotDraw[threadAdversary][threadDepth] += results.getScore()[1];
+                        depthBotLooses[threadAdversary][threadDepth] += results.getScore()[2];
+                        depthConfrontationResults[threadAdversary][threadDepth] += (results.getGlobalResult() + 1f) / 2;
+                    }
+                }
+            };
+            thread.start();
+        }
+
+        return result;
+    }
+
+
+
+
+
     public record GameResult(int player1Score, int player2Score){
 
         /**
@@ -410,6 +569,65 @@ public abstract class Bot {
             return Integer.compare(this.getTotalPlayer1Pawns(), this.getTotalPlayer2Pawns());
         }
 
+    }
+
+    public static class BotEvaluationResult{
+
+        private boolean evaluationFinished = false;
+        private int[][] depthBotVictories; // Contient le nombre de parties gagnées contre chaque bot à chaque profondeur
+        private int[][] depthBotDraw; // Contient le nombre de parties nulles contre chaque bot à chaque profondeur
+        private int[][] depthBotLooses; // Contient le nombre de parties perdues contre chaque bot à chaque profondeur
+        private float[][] depthConfrontationResults; // Contient le "score" des confrontations contre chaque adversaire à chaque profondeur
+
+        public BotEvaluationResult(boolean evaluationFinished, int[][] depthBotVictories, int[][] depthBotDraw, int[][] depthBotLooses, float[][] depthConfrontationResults) {
+            this.evaluationFinished = evaluationFinished;
+            this.depthBotVictories = depthBotVictories;
+            this.depthBotDraw = depthBotDraw;
+            this.depthBotLooses = depthBotLooses;
+            this.depthConfrontationResults = depthConfrontationResults;
+        }
+
+        public BotEvaluationResult() {}
+
+        public void finishEvaluation(){
+            this.evaluationFinished = true;
+        }
+
+        public void setDepthBotVictories(int[][] depthBotVictories) {
+            this.depthBotVictories = depthBotVictories;
+        }
+
+        public void setDepthBotDraw(int[][] depthBotDraw) {
+            this.depthBotDraw = depthBotDraw;
+        }
+
+        public void setDepthBotLooses(int[][] depthBotLooses) {
+            this.depthBotLooses = depthBotLooses;
+        }
+
+        public void setDepthConfrontationResults(float[][] depthConfrontationResults) {
+            this.depthConfrontationResults = depthConfrontationResults;
+        }
+
+        public boolean isEvaluationFinished() {
+            return evaluationFinished;
+        }
+
+        public int[][] getDepthBotVictories() {
+            return depthBotVictories;
+        }
+
+        public int[][] getDepthBotDraw() {
+            return depthBotDraw;
+        }
+
+        public int[][] getDepthBotLooses() {
+            return depthBotLooses;
+        }
+
+        public float[][] getDepthConfrontationResults() {
+            return depthConfrontationResults;
+        }
     }
 
 }
