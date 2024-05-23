@@ -54,14 +54,16 @@ public class DataManager {
                 "format_2"
                 );*/
 
-        MultiProbCutAnalysis.getEvaluationComparisonAsync(
+/*        MultiProbCutAnalysis.getEvaluationComparisonAsync(
                 new int[] {1, 2, 3, 4, 5, 6, 7, 8},
                 100,
                 15,
                 60,
                 "D:\\Theo\\Programmation\\Othello\\mpc",
                 "eval_" + System.currentTimeMillis(),
-                10);
+                10);*/
+
+        //MultiProbCutAnalysis.mergeCSV("D:\\Theo\\Perso\\Prog\\Othello\\mpc", "eval_1716219430009", "eval_1716219430009_final", 15, 59);
     }
 
 
@@ -117,7 +119,7 @@ public class DataManager {
         }
     }
 
-    private static void generatePatternsValues(){
+    private static void generatePatternsValues() {
         try {
             PatternLoader.generatePatterns(OpeningLoader.HUMAN_GAME_FOLDER);
             PatternLoader.generatePatterns(OpeningLoader.LOGISTELLO_GAME_FOLDER);

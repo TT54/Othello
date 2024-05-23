@@ -11,6 +11,7 @@ import fr.tt54.othello.game.OthelloGame;
 
 import java.util.*;
 
+@SuppressWarnings("all")
 public abstract class Bot {
 
     public static final Random random = new Random();
@@ -113,15 +114,30 @@ public abstract class Bot {
      * @param evaluationFunction la fonction d'évaluation utilisée
      * @return true si un coup a été joué, false sinon
      */
-    public static boolean iterativeSearch(OthelloGame startingPosition, long timeLeft, int previousDepth, long previousIterationDuration, EvaluationFunction evaluationFunction){
+    public static boolean iterativeSearch(
+            OthelloGame startingPosition,
+            long timeLeft,
+            int previousDepth,
+            long previousIterationDuration,
+            EvaluationFunction evaluationFunction){
         long estimatedTime = (long) (previousIterationDuration * ITERATION_MULTIPLIER_FACTOR);
 
         if(estimatedTime < timeLeft){
             long time = System.currentTimeMillis();
-            MoveEvaluation result = alphaBeta(startingPosition.clone(), previousDepth + 1, Integer.MIN_VALUE, Integer.MAX_VALUE, evaluationFunction);
+            MoveEvaluation result = alphaBeta(
+                    startingPosition.clone(),
+                    previousDepth + 1,
+                    Integer.MIN_VALUE,
+                    Integer.MAX_VALUE,
+                    evaluationFunction);
             long elapsedTime = System.currentTimeMillis() - time;
 
-            if (result.isFinalEvaluation() || !iterativeSearch(startingPosition, timeLeft - elapsedTime, previousDepth + 1, elapsedTime, evaluationFunction)) {
+            if (result.isFinalEvaluation() || !iterativeSearch(
+                    startingPosition,
+                    timeLeft - elapsedTime,
+                    previousDepth + 1,
+                    elapsedTime,
+                    evaluationFunction)) {
                 startingPosition.playMove(result.getMoveChain().getPosition());
             }
             return true;
@@ -131,26 +147,35 @@ public abstract class Bot {
     }
 
 
-    public static MoveEvaluation alphaBeta(OthelloGame startingPosition, int depth, int alpha, int beta, EvaluationFunction evaluationFunction){
-        if(depth == 0 || startingPosition.isGameFinished()){
-            return new MoveEvaluation((int) evaluationFunction.evaluate(startingPosition), null, startingPosition.isGameFinished());
+    public static MoveEvaluation alphaBeta(OthelloGame startingPosition, int depth, int alpha, int beta, EvaluationFunction evaluationFunction) {
+        if (depth == 0 || startingPosition.isGameFinished()) {
+            // Cas de base
+            return new MoveEvaluation(
+                    (int) evaluationFunction.evaluate(startingPosition),
+                    null,
+                    startingPosition.isGameFinished());
         }
 
-        if(startingPosition.isWhiteToPlay()){
+        if (startingPosition.isWhiteToPlay()) {
             MoveEvaluation bestMove = new MoveEvaluation(Integer.MIN_VALUE, null, false);
-            for(int move : startingPosition.getAvailablePlacements()){
+
+            for (int move : startingPosition.getAvailablePlacements()) {
                 OthelloGame game = startingPosition.clone();
                 boolean previousPlayer = game.isWhiteToPlay();
                 int[] moveCoordinates = OthelloGame.intToPosition(move);
-                boolean canAdversaryPlay = !game.playMove(moveCoordinates[0], moveCoordinates[1]);
+                game.playMove(moveCoordinates[0], moveCoordinates[1]);
 
+                // On évalue la position puis on la compare au max
                 MoveEvaluation currentEval = alphaBeta(game, depth - 1, alpha, beta, evaluationFunction);
                 int max = Math.max(bestMove.getEvaluation(), currentEval.getEvaluation());
-                if(max != bestMove.getEvaluation()){
-                    bestMove = new MoveEvaluation(max, new MoveChain(null, currentEval.getMoveChain(), move, previousPlayer), currentEval.isFinalEvaluation());
+                if (max != bestMove.getEvaluation()) {
+                    bestMove = new MoveEvaluation(
+                            max,
+                            new MoveChain(null, currentEval.getMoveChain(), move, previousPlayer),
+                            currentEval.isFinalEvaluation());
                 }
 
-                if(beta <= max){
+                if (beta <= max) {
                     // On fait une coupure beta
                     // ==> beta étant la plus petite valeur déjà enregistrée par le noeud parent,
                     //     on sait que notre max sera plus grand que beta, on peut donc arrêter les recherches ici : cette branche n'aura
@@ -168,12 +193,16 @@ public abstract class Bot {
                 OthelloGame game = startingPosition.clone();
                 boolean previousPlayer = game.isWhiteToPlay();
                 int[] moveCoordinates = OthelloGame.intToPosition(move);
-                boolean canAdversaryPlay = !game.playMove(moveCoordinates[0], moveCoordinates[1]);
+                game.playMove(moveCoordinates[0], moveCoordinates[1]);
 
+                // On évalue la position et on la compare au min
                 MoveEvaluation currentEval = alphaBeta(game, depth - 1, alpha, beta, evaluationFunction);
                 int min = Math.min(bestMove.getEvaluation(), currentEval.getEvaluation());
                 if(min != bestMove.getEvaluation()){
-                    bestMove = new MoveEvaluation(min, new MoveChain(null, currentEval.getMoveChain(), move, previousPlayer), currentEval.isFinalEvaluation());
+                    bestMove = new MoveEvaluation(
+                            min,
+                            new MoveChain(null, currentEval.getMoveChain(), move, previousPlayer),
+                            currentEval.isFinalEvaluation());
                 }
 
                 if(alpha >= min){
@@ -189,6 +218,8 @@ public abstract class Bot {
             return bestMove;
         }
     }
+
+
 
 
     /**

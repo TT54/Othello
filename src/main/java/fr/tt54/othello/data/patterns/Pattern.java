@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("all")
 public class Pattern {
 
     private static final Map<PatternType, Map<GameStage, Map<Integer, Pattern>>> patternsMap = new HashMap<>();
@@ -138,7 +139,7 @@ public class Pattern {
         return patternsMap.getOrDefault(type, new HashMap<>()).getOrDefault(stage, new HashMap<>()).getOrDefault(p.hashCode(), p);
     }
 
-    public static Map<Integer, Pattern> getPattern(PatternType patternType, GameStage stage) {
+    public static Map<Integer, Pattern> getPatterns(PatternType patternType, GameStage stage) {
         return patternsMap.getOrDefault(patternType, new HashMap<>()).getOrDefault(stage, new HashMap<>());
     }
 
@@ -157,41 +158,6 @@ public class Pattern {
 
         return p2;
     }
-
-    public static Pattern setPatternOccurrences(PatternType patternType, GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
-        Pattern p = new Pattern(pattern, whiteToPlay);
-
-        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
-        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
-        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
-
-        p2.setPlayed(playedPositions);
-        p2.setWon(wonPositions);
-
-        patternMap.put(p2.hashCode(), p2);
-        stageMap.put(stage, patternMap);
-        patternsMap.put(patternType, stageMap);
-
-        return p2;
-    }
-
-    public static Pattern addPatternOccurrences(PatternType patternType, GameStage stage, int[] pattern, boolean whiteToPlay, int wonPositions, int playedPositions){
-        Pattern p = new Pattern(pattern, whiteToPlay);
-
-        Map<GameStage, Map<Integer, Pattern>> stageMap = patternsMap.getOrDefault(patternType, new HashMap<>());
-        Map<Integer, Pattern> patternMap = stageMap.getOrDefault(stage, new HashMap<>());
-        Pattern p2 = patternMap.getOrDefault(p.hashCode(), p);
-
-        p2.addPlayed(playedPositions);
-        p2.addWon(wonPositions);
-
-        patternMap.put(p2.hashCode(), p2);
-        stageMap.put(stage, patternMap);
-        patternsMap.put(patternType, stageMap);
-
-        return p2;
-    }
-
 
     public enum GameStage{
         OPENING,

@@ -212,4 +212,37 @@ public class MultiProbCutAnalysis {
             e.printStackTrace();
         }
     }
+
+    public static void mergeCSV(String folder, String csvBaseName, String csvFinalName, int minAvancement, int maxAvancement) {
+        File newFile = new File(folder, csvFinalName + ".csv");
+        try {
+            FileWriter writer = new FileWriter(newFile);
+
+            for(int i = minAvancement; i < maxAvancement + 1; i++){
+                File currentFile = new File(folder, csvBaseName + "_" + i + ".csv");
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(currentFile)))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] datas = line.split(";");
+                        try {
+                            int avancement = Integer.parseInt(datas[0]);
+                            writer.write("\n" + line);
+                        } catch (NumberFormatException e){
+                            if(i == minAvancement){
+                                writer.write(line);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            writer.write(savedDatas);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

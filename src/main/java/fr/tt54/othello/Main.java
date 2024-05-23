@@ -4,6 +4,7 @@ import fr.tt54.othello.bots.Bot;
 import fr.tt54.othello.bots.TableEvalBot;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.genetic.GeneticAlgorithm;
+import fr.tt54.othello.game.OthelloGame;
 import fr.tt54.othello.game.OthelloGraphicManager;
 import fr.ttgraphiclib.GraphicManager;
 import fr.ttgraphiclib.graphics.GraphicPanel;
@@ -29,7 +30,16 @@ public class Main extends UserListener {
         GraphicManager.enable(frame, panel);
         frame.setMainClass(othelloGraphicManager = new OthelloGraphicManager());
 
-        //othelloGraphicManager.playAgainstBot(new OpeningTestBot(true));
+        OthelloGame game = OthelloGame.generateEmptyBoard();
+        game.placePiece(1, 7, false);
+        game.placePiece(3, 7, true);
+        game.placePiece(4, 7, false);
+        game.placePiece(5, 7, true);
+        game.placePiece(6, 7, true);
+        game.placePiece(7, 7, true);
+        othelloGraphicManager.setGame(game);
+
+        //othelloGraphicManager.playAgainstBot(GeneticAlgorithm.FIRST_ATTEMPT_BOT);
         //playRandomGames();
 
         //Bot.confrontBots(new OpeningTestBot(true), new OpeningTestBot(false), 8, 60 * 1000, true);
@@ -50,11 +60,15 @@ public class Main extends UserListener {
 
 
 
-        Bot bot = GeneticAlgorithm.FIRST_ATTEMPT_BOT.copy();
+/*        Bot bot = GeneticAlgorithm.FIRST_ATTEMPT_BOT.copy();
         Bot adversary = new TableEvalBot(false);
         bot.depthSearch = 7;
         adversary.depthSearch = 7;
-        System.out.println(Arrays.toString(Bot.confrontBots(bot, adversary, 2, 2 * 1000, true).getScore()));
+        bot.setWhite(false);
+
+        othelloGraphicManager.playAgainstBot(bot);*/
+
+        //System.out.println(Arrays.toString(Bot.confrontBots(bot, adversary, 2, 2 * 1000, true).getScore()));
 
         //System.out.println(Arrays.toString(Bot.confrontBots(new RandomBot(true), new OpeningTestBot(false), 100, 30 * 1000, true)));
 
