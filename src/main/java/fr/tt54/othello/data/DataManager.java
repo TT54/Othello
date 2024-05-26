@@ -1,10 +1,12 @@
 package fr.tt54.othello.data;
 
-import fr.tt54.othello.data.complexity.AlphaBetaComplexityAnalysis;
+import fr.tt54.othello.OthelloGame;
+import fr.tt54.othello.bots.Bot;
+import fr.tt54.othello.bots.TableEvalBot;
+import fr.tt54.othello.data.genetic.GeneticAlgorithm;
 import fr.tt54.othello.data.openings.OpeningLoader;
 import fr.tt54.othello.data.openings.OpeningTree;
 import fr.tt54.othello.data.patterns.PatternLoader;
-import fr.tt54.othello.game.OthelloGame;
 
 import java.io.FileNotFoundException;
 
@@ -16,12 +18,15 @@ public class DataManager {
 
     public static void main(String[] args) {
         DataManager.enable();
-        AlphaBetaComplexityAnalysis.launchAnalysis(
+        Bot.evaluateBotAsync(GeneticAlgorithm.FIRST_ATTEMPT_BOT, new Bot[]{new TableEvalBot(true)}, new int[] {7}, new int[] {200}, 8, true);
+
+
+        /*AlphaBetaComplexityAnalysis.launchAnalysis(
                 new int[] {1, 2, 3, 4, 5, 6, 7, 8},
                 150,
                 "D:\\Theo\\Programmation\\Othello\\src\\main\\resources\\alphabeta_complexity_analysis",
                 "test3"
-        );
+        );*/
         //analyseComplexityDatas();
 
         //generatePatternsValues();

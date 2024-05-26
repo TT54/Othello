@@ -1,4 +1,4 @@
-package fr.tt54.othello.game;
+package fr.tt54.othello;
 
 import java.util.*;
 
@@ -92,8 +92,8 @@ public class OthelloGame {
 
     /**
      *
-     * @param row
-     * @param column
+     * @param row    indice de la ligne
+     * @param column indice de la colonne
      * @return true si à l'issue de ce coup, l'adversaire ne peut pas jouer, false sinon
      */
     public boolean playMove(int row, int column){
@@ -189,9 +189,9 @@ public class OthelloGame {
 
     /**
      *
-     * @param row
-     * @param column
-     * @param whiteMove
+     * @param row       indice de la ligne
+     * @param column    indice de la colonne
+     * @param whiteMove true si c'est aux blancs de jouer, false sinon
      * @return Le nombre de pièces qui ont été modifiées par ce coup
      */
     public int placePiece(int row, int column, boolean whiteMove){
@@ -216,11 +216,11 @@ public class OthelloGame {
 
     /**
      * Permet de retourner, si nécessaire, les pièces averses selon une certaine direction après que l'on ait posé une pièce
-     * @param startingRow
-     * @param startingColumn
-     * @param rowMove Direction de la ligne selon laquelle on se déplace
-     * @param columnMove Direction de la colonne selon laquelle on se déplace
-     * @param whiteMove
+     * @param startingRow    Indice de la ligne de départ
+     * @param startingColumn Indice de la colonne de départ
+     * @param rowMove        Direction de la ligne selon laquelle on se déplace
+     * @param columnMove     Direction de la colonne selon laquelle on se déplace
+     * @param whiteMove      true si c'est aux blancs de jouer, false sinon
      * @return Le nombre de pièces qui ont été modifiées selon cette ligne
      */
     private int reversePiecesAfterPlacement(int startingRow, int startingColumn, int rowMove, int columnMove, boolean whiteMove) {
@@ -303,7 +303,7 @@ public class OthelloGame {
 
     /**
      * Récupère les pièces associées à un pattern
-     * @param pattern la liste des positions du pattern (trouvable via PatternType.getPatternsLocations() )
+     * @param pattern La liste des positions du pattern (trouvable via PatternType.getPatternsLocations())
      * @return La liste des pièces associées au pattern sélectionné
      */
     public int[] getPattern(int[][] pattern){

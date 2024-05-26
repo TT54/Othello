@@ -1,7 +1,5 @@
 package fr.tt54.othello.data;
 
-import fr.tt54.othello.data.objects.PlayedGame;
-
 import java.io.IOException;
 import java.io.InputStream;
 

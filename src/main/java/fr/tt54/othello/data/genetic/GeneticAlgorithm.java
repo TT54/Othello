@@ -1,9 +1,9 @@
 package fr.tt54.othello.data.genetic;
 
-import fr.tt54.othello.bots.AdvancedPatternEvalBot;
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.Bot;
+import fr.tt54.othello.bots.PatternEvalBot;
 import fr.tt54.othello.data.patterns.Pattern;
-import fr.tt54.othello.game.OthelloGame;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -18,16 +18,10 @@ public class GeneticAlgorithm {
 
     public static Random random = new Random();
 
-    public static final AdvancedPatternEvalBot FIRST_ATTEMPT_BOT = new AdvancedPatternEvalBot(true, new float[] {5.585513f, 4.4577804f, 2.6828187f, 4.4562306f, 7.4148116f, 4.2731333f, 4.333627f, 1.5871282f, 8.166409f}, 0.05614471f);
-    public static final AdvancedPatternEvalBot SECOND_ATTEMPT_BOT = new AdvancedPatternEvalBot(true, new float[] {5.249243f, 3.4480486f, 2.6761231f, 2.7054176f, 9.367574f, 4.3268347f, 3.9276142f, 2.708558f, 6.8990593f}, 0.08751938f);
-
-/*    public static final float mutationProba = 0.25f;
-    public static final float crossOverProba = 0.70f;
-
-    public static final int EVALUATION_AMOUNT_OF_GAMES = 4;
-    public static final int[] EVALUATION_DEPTH = new int[] {1, 2, 3};
-    public static final int POPULATION = 200;*/
-
+    public static final PatternEvalBot FIRST_ATTEMPT_BOT = new PatternEvalBot(
+            true,
+            new float[] {5.585513f, 4.4577804f, 2.6828187f, 4.4562306f, 7.4148116f, 4.2731333f, 4.333627f, 1.5871282f, 8.166409f},
+            0.05614471f);
 
     private static Individu[] individus;
     private static int generation;
@@ -223,16 +217,16 @@ public class GeneticAlgorithm {
 
     public static class Individu {
 
-        AdvancedPatternEvalBot bot;
+        PatternEvalBot bot;
         float fitness;
 
-        public Individu(AdvancedPatternEvalBot bot, float fitness) {
+        public Individu(PatternEvalBot bot, float fitness) {
             this.bot = bot;
             this.fitness = fitness;
         }
 
         public Individu copy(){
-            return new Individu((AdvancedPatternEvalBot) this.bot.copy(), fitness);
+            return new Individu((PatternEvalBot) this.bot.copy(), fitness);
         }
 
         public JSONObject saveIndividu(){
@@ -253,7 +247,7 @@ public class GeneticAlgorithm {
             for (int i = 0; i < patternsCoeffs.length; i++) {
                 patternsCoeffs[i] = getRandomValue();
             }
-            return new Individu(new AdvancedPatternEvalBot(true, patternsCoeffs, getRandomValue()), 0f);
+            return new Individu(new PatternEvalBot(true, patternsCoeffs, getRandomValue()), 0f);
         }
 
         public static Individu[] generateCrossOver(Individu individu1, Individu individu2) {
@@ -271,8 +265,8 @@ public class GeneticAlgorithm {
             float freedomCoeff2 = alpha * individu2.bot.freedomCoeff + (1 - alpha) * individu1.bot.freedomCoeff;
 
             Individu[] individus = new Individu[2];
-            individus[0] = new Individu(new AdvancedPatternEvalBot(true, patternCoeffs1, freedomCoeff1), (individu1.fitness + individu2.fitness) / 2);
-            individus[1] = new Individu(new AdvancedPatternEvalBot(true, patternCoeffs2, freedomCoeff2), (individu1.fitness + individu2.fitness) / 2);
+            individus[0] = new Individu(new PatternEvalBot(true, patternCoeffs1, freedomCoeff1), (individu1.fitness + individu2.fitness) / 2);
+            individus[1] = new Individu(new PatternEvalBot(true, patternCoeffs2, freedomCoeff2), (individu1.fitness + individu2.fitness) / 2);
 
             mutate(individus[0]);
             mutate(individus[1]);
@@ -306,7 +300,7 @@ public class GeneticAlgorithm {
                     }
 
                     //AdvancedPatternEvalBot adversaryBot = new AdvancedPatternEvalBot(false, depth);
-                    AdvancedPatternEvalBot adversaryBot = (AdvancedPatternEvalBot) FIRST_ATTEMPT_BOT.copy();
+                    PatternEvalBot adversaryBot = (PatternEvalBot) FIRST_ATTEMPT_BOT.copy();
                     adversaryBot.depthSearch = depth;
                     adversaryBot.setWhite(false);
 

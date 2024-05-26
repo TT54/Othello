@@ -1,20 +1,20 @@
 package fr.tt54.othello.bots;
 
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.patterns.Pattern;
-import fr.tt54.othello.game.OthelloGame;
 
 import java.util.Arrays;
 
-public class AdvancedPatternEvalBot extends Bot{
+public class PatternEvalBot extends Bot{
 
 
     public final float[] patternCoeffs;
     public float freedomCoeff;
 
 
-    public AdvancedPatternEvalBot(boolean white) {
+    public PatternEvalBot(boolean white) {
         super(white);
         DataManager.enable();
 
@@ -23,7 +23,7 @@ public class AdvancedPatternEvalBot extends Bot{
         freedomCoeff = 0;
     }
 
-    public AdvancedPatternEvalBot(boolean white, int depthSearch) {
+    public PatternEvalBot(boolean white, int depthSearch) {
         super(white);
         this.depthSearch = depthSearch;
 
@@ -32,13 +32,13 @@ public class AdvancedPatternEvalBot extends Bot{
         freedomCoeff = 0;
     }
 
-    public AdvancedPatternEvalBot(boolean white, float[] patternCoeffs, float freedomCoeff) {
+    public PatternEvalBot(boolean white, float[] patternCoeffs, float freedomCoeff) {
         super(white);
         this.patternCoeffs = patternCoeffs;
         this.freedomCoeff = freedomCoeff;
     }
 
-    public AdvancedPatternEvalBot(boolean white, int depthSearch, float[] patternCoeffs, float freedomCoeff) {
+    public PatternEvalBot(boolean white, int depthSearch, float[] patternCoeffs, float freedomCoeff) {
         super(white);
         this.depthSearch = depthSearch;
         this.patternCoeffs = patternCoeffs;
@@ -47,8 +47,8 @@ public class AdvancedPatternEvalBot extends Bot{
 
     @Override
     public boolean playMove(OthelloGame game, long timeLeft) {
-        int movesToPlayLeft = (60 - game.getMoveCount()) / 2;
-        long timeToPlay = (timeLeft == -1) ? Long.MAX_VALUE : (movesToPlayLeft == 0) ? timeLeft : timeLeft / movesToPlayLeft;
+        int movesToPlayLeft = Math.max(1, (50 - game.getMoveCount()) / 2);
+        long timeToPlay = (timeLeft == -1) ? Long.MAX_VALUE : timeLeft / movesToPlayLeft;
 
         if (!this.tryOpeningMove(game)) {
             if(depthSearch < 0) {
@@ -64,7 +64,7 @@ public class AdvancedPatternEvalBot extends Bot{
 
     @Override
     public Bot copy() {
-        Bot bot = new AdvancedPatternEvalBot(isWhite(), this.depthSearch, this.patternCoeffs, this.freedomCoeff);
+        Bot bot = new PatternEvalBot(isWhite(), this.depthSearch, this.patternCoeffs, this.freedomCoeff);
         bot.setBotNumber(this.getBotNumber());
         return bot;
     }

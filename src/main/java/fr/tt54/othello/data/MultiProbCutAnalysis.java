@@ -1,8 +1,8 @@
 package fr.tt54.othello.data;
 
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.Bot;
 import fr.tt54.othello.data.genetic.GeneticAlgorithm;
-import fr.tt54.othello.game.OthelloGame;
 
 import java.io.*;
 

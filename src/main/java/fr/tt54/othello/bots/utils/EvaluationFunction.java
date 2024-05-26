@@ -1,6 +1,6 @@
 package fr.tt54.othello.bots.utils;
 
-import fr.tt54.othello.game.OthelloGame;
+import fr.tt54.othello.OthelloGame;
 
 public interface EvaluationFunction {
 

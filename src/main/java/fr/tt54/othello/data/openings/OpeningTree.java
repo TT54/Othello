@@ -1,6 +1,6 @@
 package fr.tt54.othello.data.openings;
 
-import fr.tt54.othello.game.OthelloGame;
+import fr.tt54.othello.OthelloGame;
 
 import java.util.HashMap;
 import java.util.Map;

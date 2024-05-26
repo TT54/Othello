@@ -1,6 +1,6 @@
 package fr.tt54.othello.bots;
 
-import fr.tt54.othello.game.OthelloGame;
+import fr.tt54.othello.OthelloGame;
 
 import java.util.ArrayList;
 

@@ -1,13 +1,13 @@
 package fr.tt54.othello.bots;
 
 import fr.tt54.othello.Main;
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.utils.EvaluationFunction;
 import fr.tt54.othello.bots.utils.MoveChain;
 import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
 import fr.tt54.othello.data.genetic.GeneticAlgorithm;
 import fr.tt54.othello.data.openings.OpeningTree;
-import fr.tt54.othello.game.OthelloGame;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ public abstract class Bot {
 
     public static final Random random = new Random();
     public static final int TIME_BETWEEN_MOVES = 0; // Temps, en ms, entre le moment où un coup est joué sur le plateau et le moment où le calcul du prochain coup est lancé
-    public static final double ITERATION_MULTIPLIER_FACTOR = 5.5d;
+    public static final double ITERATION_MULTIPLIER_FACTOR = 7d;
 
     private boolean white;
 
@@ -47,17 +47,12 @@ public abstract class Bot {
 
     /**
      * Permet de jouer le meilleur coup selon le bot dans la position
-     *
      * @param game     Partie en cours
      * @param timeLeft Temps restant (en ms) pour jouer les prochains coups de la partie
      * @return true si un coup a pu être joué, false sinon
      */
     public abstract boolean playMove(OthelloGame game, long timeLeft);
 
-    /**
-     *
-     * @return une copie du bot
-     */
     public abstract Bot copy();
 
 
@@ -114,36 +109,72 @@ public abstract class Bot {
      * @param evaluationFunction la fonction d'évaluation utilisée
      * @return true si un coup a été joué, false sinon
      */
-    public static boolean iterativeSearch(
-            OthelloGame startingPosition,
-            long timeLeft,
-            int previousDepth,
-            long previousIterationDuration,
-            EvaluationFunction evaluationFunction){
+    public static boolean iterativeSearch(OthelloGame startingPosition, long timeLeft, int previousDepth, long previousIterationDuration, EvaluationFunction evaluationFunction){
         long estimatedTime = (long) (previousIterationDuration * ITERATION_MULTIPLIER_FACTOR);
 
         if(estimatedTime < timeLeft){
             long time = System.currentTimeMillis();
-            MoveEvaluation result = alphaBeta(
-                    startingPosition.clone(),
-                    previousDepth + 1,
-                    Integer.MIN_VALUE,
-                    Integer.MAX_VALUE,
-                    evaluationFunction);
+            MoveEvaluation result = alphaBeta(startingPosition.clone(), previousDepth + 1, Integer.MIN_VALUE, Integer.MAX_VALUE, evaluationFunction);
             long elapsedTime = System.currentTimeMillis() - time;
 
-            if (result.isFinalEvaluation() || !iterativeSearch(
-                    startingPosition,
-                    timeLeft - elapsedTime,
-                    previousDepth + 1,
-                    elapsedTime,
-                    evaluationFunction)) {
+            if (result.isFinalEvaluation() || !iterativeSearch(startingPosition, timeLeft - elapsedTime, previousDepth + 1, elapsedTime, evaluationFunction)) {
                 startingPosition.playMove(result.getMoveChain().getPosition());
             }
             return true;
         }
 
         return false;
+    }
+
+    /**
+     *
+     * @param startingPosition   position de départ
+     * @param depth              profondeur de recherche
+     * @param evaluationFunction fonction d'évaluation
+     * @return un tableau contenant {évaluation, meilleur coup}
+     */
+    public static int[] minMax(OthelloGame startingPosition, int depth, EvaluationFunction evaluationFunction){
+        if(depth == 0 || startingPosition.isGameFinished()){
+            // Si on a atteint une racine, on renvoie uniquement l'évaluation
+            return new int[] {(int) evaluationFunction.evaluate(startingPosition)};
+        }
+
+        // Si c'est aux blancs de jouer, on est dans le cas max
+        if(startingPosition.isWhiteToPlay()){
+            int max = Integer.MIN_VALUE; // Evaluation maximale
+            int bestMove = -1; // Meilleur coup trouvé
+
+            for(int move : startingPosition.getAvailablePlacements()){
+                OthelloGame game = startingPosition.clone();
+                int[] moveCoordinates = OthelloGame.intToPosition(move); // Récupération des coordonnées du coup
+                game.playMove(moveCoordinates[0], moveCoordinates[1]);
+
+                int previousMax = max;
+                // On compare le maximum précédent à la valeur de min-max après avoir joué le coup
+                max = Math.max(max, minMax(game, depth - 1, evaluationFunction)[0]);
+                if(max != previousMax){
+                    bestMove = move;
+                }
+            }
+            return new int[] {max, bestMove};
+        } else {
+            int min = Integer.MAX_VALUE; // Evaluation minimale
+            int bestMove = -1; // Meilleur coup trouvé
+
+            for(int move : startingPosition.getAvailablePlacements()){
+                OthelloGame game = startingPosition.clone();
+                int[] moveCoordinates = OthelloGame.intToPosition(move);
+                game.playMove(moveCoordinates[0], moveCoordinates[1]); // Récupération des coordonnées du coup
+
+                int previousMin = min;
+                // On compare le minimum précédent à la valeur de min-max après avoir joué le coup
+                min = Math.min(min, minMax(game, depth - 1, evaluationFunction)[0]);
+                if(min != previousMin){
+                    bestMove = move;
+                }
+            }
+            return new int[] {min, bestMove};
+        }
     }
 
 

@@ -1,9 +1,9 @@
 package fr.tt54.othello.data.patterns;
 
+import fr.tt54.othello.OthelloGame;
+import fr.tt54.othello.data.PlayedGame;
 import fr.tt54.othello.data.WTHORReader;
-import fr.tt54.othello.data.objects.PlayedGame;
 import fr.tt54.othello.data.openings.OpeningLoader;
-import fr.tt54.othello.game.OthelloGame;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;

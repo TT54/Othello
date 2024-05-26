@@ -1,9 +1,9 @@
 package fr.tt54.othello.bots;
 
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.utils.Evaluation;
 import fr.tt54.othello.bots.utils.MoveEvaluation;
 import fr.tt54.othello.data.DataManager;
-import fr.tt54.othello.game.OthelloGame;
 
 public class TableEvalBot extends Bot {
 

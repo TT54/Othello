@@ -1,7 +1,7 @@
 package fr.tt54.othello.bots.utils;
 
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.data.patterns.Pattern;
-import fr.tt54.othello.game.OthelloGame;
 
 public class Evaluation {
 
@@ -62,6 +62,16 @@ public class Evaluation {
             }
         }
 
+        return points;
+    }
+
+    public static int standardEval(OthelloGame game){
+        int points = 0;
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                points += game.getPiece(i, j);
+            }
+        }
         return points;
     }
 

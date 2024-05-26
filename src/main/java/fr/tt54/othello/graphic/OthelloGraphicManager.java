@@ -1,8 +1,8 @@
-package fr.tt54.othello.game;
+package fr.tt54.othello.graphic;
 
 import fr.tt54.othello.Main;
+import fr.tt54.othello.OthelloGame;
 import fr.tt54.othello.bots.Bot;
-import fr.tt54.othello.graphic.GraphicPiece;
 import fr.ttgraphiclib.graphics.GraphicPanel;
 import fr.ttgraphiclib.graphics.nodes.GraphicNode;
 import fr.ttgraphiclib.graphics.nodes.RectangleNode;
@@ -21,13 +21,11 @@ public class OthelloGraphicManager extends MainClass {
     private java.util.List<GraphicNode> allowedMovesNodes = new ArrayList<>();
     private Set<Integer> allowedMoves = new HashSet<>();
     private Bot bot;
+    private int timePerGame = 2 * 60 * 1000; // Temps par partie pour le programme (en ms)
 
 
     public OthelloGraphicManager() {
-        //this.game = new OthelloGame("c4e3f6e6f5c5f4g6f7e8f8g8h6c3b4g5b6d3d2e7e2f3g3b5d7d6d8c8g4h4a6h3h5h7c6f2h2h1g1c1d1a5g7a3b3a7b7c7b8e1a4a8f1a2c2b1g2b2");
-        //this.game = new OthelloGame("f5f4e3d2e2f6d3c3c5c4f3d6e6c6b5b4a4a5a6c2b3a3a2b6d7e7a7d8g4c7c1f1f8d1b8e8c8g6f7h4");
         this.game = new OthelloGame("");
-        //this.game = new OthelloGame("f5f4e3f6d3e2f3f2e6d2g5h6g4h5h3g3c1e7d6g6f8d8e8d7f7c3c2c4c8e1c5b3d1b4b5a6f1b6c6c7h4h2g2g8h8h1g1b1a2a3b8a1b2b7a8g7");
         this.drawBoard();
     }
 
@@ -59,9 +57,12 @@ public class OthelloGraphicManager extends MainClass {
             }
             this.allowedMovesNodes.clear();
 
-            if(!bot.playMove(this.game, 30 * 1000L)){
+            long time = System.currentTimeMillis();
+            if(this.game.getAvailablePlacements().isEmpty() || !bot.playMove(this.game, this.timePerGame)){
                 bot = null;
             }
+            this.timePerGame -= System.currentTimeMillis() - time;
+            System.out.println(this.timePerGame);
         }
     }
 
@@ -101,11 +102,6 @@ public class OthelloGraphicManager extends MainClass {
                 }
             }
         }
-
-/*        panel.addPainting(ttGraphics -> {
-            ttGraphics.getGraphics().drawString("SalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalutSalut", 10, 10);
-            return true;
-        }, 150);*/
 
         nodes.forEach(panel::removeNode);
         showAvailableMoves();

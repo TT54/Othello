@@ -1,8 +1,8 @@
 package fr.tt54.othello.data.openings;
 
 import fr.tt54.othello.data.DataManager;
+import fr.tt54.othello.data.PlayedGame;
 import fr.tt54.othello.data.WTHORReader;
-import fr.tt54.othello.data.objects.PlayedGame;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,5 +41,4 @@ public class OpeningLoader {
             }
         }
     }
-
 }
